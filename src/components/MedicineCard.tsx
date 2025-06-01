@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Check, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface MedicineCardProps {
   name: string;
@@ -12,6 +13,23 @@ interface MedicineCardProps {
 }
 
 const MedicineCard = ({ name, time, dosage, status }: MedicineCardProps) => {
+  const { toast } = useToast();
+
+  const handleTakeNow = () => {
+    toast({
+      title: "Medicine Taken",
+      description: `${name} marked as taken at ${new Date().toLocaleTimeString()}`,
+    });
+  };
+
+  const handleSkip = () => {
+    toast({
+      title: "Medicine Skipped",
+      description: `${name} has been skipped for this dose`,
+      variant: "destructive"
+    });
+  };
+
   const getStatusIcon = () => {
     switch (status) {
       case 'taken':
@@ -56,6 +74,7 @@ const MedicineCard = ({ name, time, dosage, status }: MedicineCardProps) => {
           <div className="flex gap-2">
             <Button 
               size="sm" 
+              onClick={handleTakeNow}
               className="bg-pill-navy hover:bg-pill-navy/90 text-white"
             >
               Take Now
@@ -63,6 +82,7 @@ const MedicineCard = ({ name, time, dosage, status }: MedicineCardProps) => {
             <Button 
               size="sm" 
               variant="outline"
+              onClick={handleSkip}
               className="border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white"
             >
               Skip

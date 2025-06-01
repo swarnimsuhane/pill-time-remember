@@ -1,13 +1,38 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Pill, Camera, Calendar, MessageCircle, Plus, Heart } from 'lucide-react';
 import MedicineCard from '@/components/MedicineCard';
 import QuickStats from '@/components/QuickStats';
 import UpcomingReminders from '@/components/UpcomingReminders';
+import AddMedicineModal from '@/components/AddMedicineModal';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
+  const [showAddMedicine, setShowAddMedicine] = useState(false);
+  const { toast } = useToast();
+
+  const handleScheduleClick = () => {
+    toast({
+      title: "Schedule Feature",
+      description: "Medication scheduling will be available soon!",
+    });
+  };
+
+  const handleAIAssistant = () => {
+    toast({
+      title: "AI Assistant",
+      description: "Ask me anything about your medications! This feature is coming soon.",
+    });
+  };
+
+  const handleAddDoctor = () => {
+    toast({
+      title: "Add Doctor",
+      description: "Doctor management feature will be available in the next update!",
+    });
+  };
+
   return (
     <div className="animate-fade-in space-y-8">
       {/* Welcome Section */}
@@ -37,6 +62,7 @@ const Dashboard = () => {
         <h3 className="text-2xl font-semibold text-pill-navy mb-6 font-montserrat">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Button 
+            onClick={() => setShowAddMedicine(true)}
             className="h-20 flex flex-col gap-2 bg-pill-navy hover:bg-pill-navy/90 text-white transition-all duration-200 hover:scale-105"
           >
             <Camera className="w-6 h-6" />
@@ -44,6 +70,7 @@ const Dashboard = () => {
           </Button>
           
           <Button 
+            onClick={handleScheduleClick}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
           >
@@ -52,6 +79,7 @@ const Dashboard = () => {
           </Button>
           
           <Button 
+            onClick={handleAIAssistant}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
           >
@@ -60,6 +88,7 @@ const Dashboard = () => {
           </Button>
           
           <Button 
+            onClick={handleAddDoctor}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
           >
@@ -105,6 +134,12 @@ const Dashboard = () => {
           <UpcomingReminders />
         </div>
       </div>
+
+      {/* Add Medicine Modal */}
+      <AddMedicineModal 
+        isOpen={showAddMedicine} 
+        onClose={() => setShowAddMedicine(false)} 
+      />
     </div>
   );
 };

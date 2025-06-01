@@ -6,10 +6,16 @@ import { Clock, Pill, User, Bell, Settings, Camera, Calendar, MessageCircle } fr
 import Header from '@/components/Header';
 import LoadingAnimation from '@/components/LoadingAnimation';
 import Dashboard from '@/components/Dashboard';
+import SettingsModal from '@/components/SettingsModal';
+import ProfileModal from '@/components/ProfileModal';
 
 const Index = () => {
   const [showLoading, setShowLoading] = useState(true);
   const [currentView, setCurrentView] = useState('dashboard');
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsModalType, setSettingsModalType] = useState<'notifications' | 'timezone'>('notifications');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileModalType, setProfileModalType] = useState<'personal' | 'medical'>('personal');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -22,6 +28,16 @@ const Index = () => {
   if (showLoading) {
     return <LoadingAnimation />;
   }
+
+  const handleSettingsClick = (type: 'notifications' | 'timezone') => {
+    setSettingsModalType(type);
+    setShowSettingsModal(true);
+  };
+
+  const handleProfileClick = (type: 'personal' | 'medical') => {
+    setProfileModalType(type);
+    setShowProfileModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pill-light to-pill-teal">
@@ -47,14 +63,26 @@ const Index = () => {
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-pill-light rounded-lg">
+                    <Card 
+                      className="p-4 bg-pill-light hover:bg-pill-teal/20 transition-colors cursor-pointer"
+                      onClick={() => handleProfileClick('personal')}
+                    >
                       <h4 className="font-semibold text-pill-navy mb-2">Personal Information</h4>
                       <p className="text-pill-navy/70">Update your profile details</p>
-                    </div>
-                    <div className="p-4 bg-pill-light rounded-lg">
+                      <Button className="mt-3 bg-pill-navy hover:bg-pill-navy/90" size="sm">
+                        Edit Details
+                      </Button>
+                    </Card>
+                    <Card 
+                      className="p-4 bg-pill-light hover:bg-pill-teal/20 transition-colors cursor-pointer"
+                      onClick={() => handleProfileClick('medical')}
+                    >
                       <h4 className="font-semibold text-pill-navy mb-2">Medical History</h4>
                       <p className="text-pill-navy/70">Track your health records</p>
-                    </div>
+                      <Button className="mt-3 bg-pill-navy hover:bg-pill-navy/90" size="sm">
+                        Update History
+                      </Button>
+                    </Card>
                   </div>
                 </div>
               </Card>
@@ -73,7 +101,11 @@ const Index = () => {
                         Notifications
                       </h3>
                       <p className="text-pill-navy/70 mb-4">Customize reminder preferences</p>
-                      <Button variant="outline" className="border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white">
+                      <Button 
+                        onClick={() => handleSettingsClick('notifications')}
+                        variant="outline" 
+                        className="border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white"
+                      >
                         Configure
                       </Button>
                     </Card>
@@ -84,7 +116,11 @@ const Index = () => {
                         Timezone
                       </h3>
                       <p className="text-pill-navy/70 mb-4">Set to India Standard Time</p>
-                      <Button variant="outline" className="border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white">
+                      <Button 
+                        onClick={() => handleSettingsClick('timezone')}
+                        variant="outline" 
+                        className="border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white"
+                      >
                         Update
                       </Button>
                     </Card>
@@ -95,6 +131,19 @@ const Index = () => {
           )}
         </div>
       </main>
+
+      {/* Modals */}
+      <SettingsModal 
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        type={settingsModalType}
+      />
+      
+      <ProfileModal 
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        type={profileModalType}
+      />
     </div>
   );
 };

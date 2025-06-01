@@ -6,9 +6,10 @@ import { User, Bell, Settings, Home } from 'lucide-react';
 interface HeaderProps {
   currentView: string;
   setCurrentView: (view: string) => void;
+  onNotificationClick: () => void;
 }
 
-const Header = ({ currentView, setCurrentView }: HeaderProps) => {
+const Header = ({ currentView, setCurrentView, onNotificationClick }: HeaderProps) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-pill-teal/30 pill-shadow">
       <div className="max-w-6xl mx-auto px-4 py-4">
@@ -56,6 +57,7 @@ const Header = ({ currentView, setCurrentView }: HeaderProps) => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={onNotificationClick}
               className="text-pill-navy hover:bg-pill-light relative"
             >
               <Bell className="w-4 h-4" />

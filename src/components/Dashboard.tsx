@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,32 +7,15 @@ import MedicineCard from '@/components/MedicineCard';
 import QuickStats from '@/components/QuickStats';
 import UpcomingReminders from '@/components/UpcomingReminders';
 import AddMedicineModal from '@/components/AddMedicineModal';
-import { useToast } from '@/hooks/use-toast';
+import ScheduleModal from '@/components/ScheduleModal';
+import AIAssistant from '@/components/AIAssistant';
+import DoctorModal from '@/components/DoctorModal';
 
 const Dashboard = () => {
   const [showAddMedicine, setShowAddMedicine] = useState(false);
-  const { toast } = useToast();
-
-  const handleScheduleClick = () => {
-    toast({
-      title: "Schedule Feature",
-      description: "Medication scheduling will be available soon!",
-    });
-  };
-
-  const handleAIAssistant = () => {
-    toast({
-      title: "AI Assistant",
-      description: "Ask me anything about your medications! This feature is coming soon.",
-    });
-  };
-
-  const handleAddDoctor = () => {
-    toast({
-      title: "Add Doctor",
-      description: "Doctor management feature will be available in the next update!",
-    });
-  };
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -70,7 +54,7 @@ const Dashboard = () => {
           </Button>
           
           <Button 
-            onClick={handleScheduleClick}
+            onClick={() => setShowSchedule(true)}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
           >
@@ -79,7 +63,7 @@ const Dashboard = () => {
           </Button>
           
           <Button 
-            onClick={handleAIAssistant}
+            onClick={() => setShowAIAssistant(true)}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
           >
@@ -88,7 +72,7 @@ const Dashboard = () => {
           </Button>
           
           <Button 
-            onClick={handleAddDoctor}
+            onClick={() => setShowDoctorModal(true)}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
           >
@@ -135,10 +119,22 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Add Medicine Modal */}
+      {/* Modals */}
       <AddMedicineModal 
         isOpen={showAddMedicine} 
         onClose={() => setShowAddMedicine(false)} 
+      />
+      <ScheduleModal 
+        isOpen={showSchedule} 
+        onClose={() => setShowSchedule(false)} 
+      />
+      <AIAssistant 
+        isOpen={showAIAssistant} 
+        onClose={() => setShowAIAssistant(false)} 
+      />
+      <DoctorModal 
+        isOpen={showDoctorModal} 
+        onClose={() => setShowDoctorModal(false)} 
       />
     </div>
   );

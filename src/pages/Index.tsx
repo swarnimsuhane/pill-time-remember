@@ -8,6 +8,7 @@ import LoadingAnimation from '@/components/LoadingAnimation';
 import Dashboard from '@/components/Dashboard';
 import SettingsModal from '@/components/SettingsModal';
 import ProfileModal from '@/components/ProfileModal';
+import NotificationsPanel from '@/components/NotificationsPanel';
 
 const Index = () => {
   const [showLoading, setShowLoading] = useState(true);
@@ -16,6 +17,7 @@ const Index = () => {
   const [settingsModalType, setSettingsModalType] = useState<'notifications' | 'timezone'>('notifications');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileModalType, setProfileModalType] = useState<'personal' | 'medical'>('personal');
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,7 +43,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pill-light to-pill-teal">
-      <Header currentView={currentView} setCurrentView={setCurrentView} />
+      <Header 
+        currentView={currentView} 
+        setCurrentView={setCurrentView}
+        onNotificationClick={() => setShowNotifications(true)}
+      />
       
       <main className="pt-20 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
@@ -143,6 +149,11 @@ const Index = () => {
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
         type={profileModalType}
+      />
+
+      <NotificationsPanel 
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
       />
     </div>
   );

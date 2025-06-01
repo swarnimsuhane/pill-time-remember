@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Check, AlertCircle } from 'lucide-react';
@@ -12,10 +12,12 @@ interface MedicineCardProps {
   status: 'pending' | 'taken' | 'missed';
 }
 
-const MedicineCard = ({ name, time, dosage, status }: MedicineCardProps) => {
+const MedicineCard = ({ name, time, dosage, status: initialStatus }: MedicineCardProps) => {
+  const [status, setStatus] = useState(initialStatus);
   const { toast } = useToast();
 
   const handleTakeNow = () => {
+    setStatus('taken');
     toast({
       title: "Medicine Taken",
       description: `${name} marked as taken at ${new Date().toLocaleTimeString()}`,
@@ -23,6 +25,7 @@ const MedicineCard = ({ name, time, dosage, status }: MedicineCardProps) => {
   };
 
   const handleSkip = () => {
+    setStatus('missed');
     toast({
       title: "Medicine Skipped",
       description: `${name} has been skipped for this dose`,

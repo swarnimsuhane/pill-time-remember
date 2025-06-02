@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Camera, Calendar, MessageCircle, Plus, Clock, Droplets, Activity } from 'lucide-react';
+import { Heart, Camera, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle } from 'lucide-react';
 import MedicineCardReal from '@/components/MedicineCardReal';
 import AddMedicineModalReal from '@/components/AddMedicineModalReal';
 import ScheduleModal from '@/components/ScheduleModal';
@@ -12,6 +12,7 @@ import HydrationTracker from '@/components/HydrationTracker';
 import SymptomChecker from '@/components/SymptomChecker';
 import { useMedicines } from '@/hooks/useMedicines';
 import { useHydration } from '@/hooks/useHydration';
+import { useSymptoms } from '@/hooks/useSymptoms';
 import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardReal = () => {
@@ -24,6 +25,7 @@ const DashboardReal = () => {
   
   const { medicines, loading, deleteMedicine } = useMedicines();
   const { logs: hydrationLogs } = useHydration();
+  const { logs: symptomLogs } = useSymptoms();
   const { user } = useAuth();
 
   const currentTime = new Date();
@@ -240,6 +242,98 @@ const DashboardReal = () => {
           )}
         </div>
       </Card>
+
+      {/* Health Logs Section */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Recent Hydration Logs */}
+        <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-pill-navy flex items-center gap-2">
+              <Droplets className="w-5 h-5 text-blue-600" />
+              Hydration Logs
+            </h3>
+            <Button 
+              onClick={() => setShowHydrationTracker(true)}
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Track Water
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {hydrationLogs.length > 0 ? (
+              hydrationLogs.slice(0, 3).map((log) => (
+                <div key={log.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Droplets className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-pill-navy">{log.date}</p>
+                      <p className="text-sm text-pill-navy/70">{log.liters}L consumed</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-600">{Math.round((log.liters / 3) * 100)}%</div>
+                    <div className="text-xs text-blue-600/70">of goal</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <TrendingUp className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                <p className="text-pill-navy/70 text-sm">No hydration logs yet</p>
+                <p className="text-pill-navy/50 text-xs">Start tracking your water intake</p>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Recent Symptom Logs */}
+        <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-pill-navy flex items-center gap-2">
+              <Activity className="w-5 h-5 text-red-600" />
+              Symptom Logs
+            </h3>
+            <Button 
+              onClick={() => setShowSymptomChecker(true)}
+              size="sm"
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Log Symptoms
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {symptomLogs.length > 0 ? (
+              symptomLogs.slice(0, 3).map((log) => (
+                <div key={log.id} className="p-3 bg-red-50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-pill-navy">{log.date}</p>
+                      </div>
+                      <p className="text-sm text-pill-navy/80 mb-2">{log.symptoms}</p>
+                      <p className="text-xs text-red-700 bg-red-100 p-2 rounded">
+                        {log.suggestions}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                <p className="text-pill-navy/70 text-sm">No symptom logs yet</p>
+                <p className="text-pill-navy/50 text-xs">Track how you're feeling</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
 
       {/* Modals */}
       <AddMedicineModalReal 

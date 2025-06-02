@@ -15,7 +15,18 @@ serve(async (req) => {
   }
 
   try {
+    console.log('AI Assistant function called');
+    
+    if (!openAIApiKey) {
+      console.error('CLIENT_KEY not found in environment');
+      return new Response(JSON.stringify({ error: 'API key not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { message, language = 'en' } = await req.json();
+    console.log('Received message:', message, 'Language:', language);
 
     const systemPrompt = language === 'hi' 
       ? "आप एक सहायक स्वास्थ्य AI असिस्टेंट हैं जो दवाओं, स्वास्थ्य और कल्याण के बारे में सवालों का जवाब देते हैं। हमेशा सलाह दें कि गंभीर स्वास्थ्य समस्याओं के लिए डॉक्टर से सलाह लें।"
@@ -38,9 +49,15 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      console.error('OpenAI API error:', response.status, response.statusText);
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
     const data = await response.json();
     const reply = data.choices[0].message.content;
 
+    console.log('AI response generated successfully');
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

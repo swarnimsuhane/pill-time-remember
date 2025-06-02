@@ -2,13 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Clock, Pill, User, Bell, Settings, Camera, Calendar, MessageCircle } from 'lucide-react';
+import { User } from 'lucide-react';
 import Header from '@/components/Header';
 import LoadingAnimation from '@/components/LoadingAnimation';
-import Dashboard from '@/components/Dashboard';
+import DashboardReal from '@/components/DashboardReal';
 import SettingsModal from '@/components/SettingsModal';
 import ProfileModal from '@/components/ProfileModal';
 import NotificationsPanel from '@/components/NotificationsPanel';
+import AuthPage from '@/components/AuthPage';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
 
 const Index = () => {
   const [showLoading, setShowLoading] = useState(true);
@@ -18,17 +21,35 @@ const Index = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileModalType, setProfileModalType] = useState<'personal' | 'medical'>('personal');
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { profile } = useProfile();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
 
+  // Show loading animation first
   if (showLoading) {
     return <LoadingAnimation />;
+  }
+
+  // Show auth page if not authenticated
+  if (!authLoading && !user) {
+    return <AuthPage />;
+  }
+
+  // Show loading if still checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pill-light to-pill-teal flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-pill-navy border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   const handleSettingsClick = (type: 'notifications' | 'timezone') => {
@@ -51,20 +72,34 @@ const Index = () => {
       
       <main className="pt-20 pb-8 px-4">
         <div className="max-w-6xl mx-auto">
-          {currentView === 'dashboard' && <Dashboard />}
+          {currentView === 'dashboard' && <DashboardReal />}
           
           {currentView === 'profile' && (
             <div className="animate-fade-in">
               <Card className="p-8 bg-white/90 backdrop-blur-sm pill-shadow">
-                <h2 className="text-3xl font-bold text-pill-navy mb-6 font-montserrat">Your Profile</h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-3xl font-bold text-pill-navy font-montserrat">Your Profile</h2>
+                  <Button
+                    onClick={signOut}
+                    variant="outline"
+                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
                 <div className="grid gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 bg-pill-teal rounded-full flex items-center justify-center">
                       <User className="w-10 h-10 text-pill-navy" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-semibold text-pill-navy">Welcome Back!</h3>
-                      <p className="text-pill-navy/70">Manage your health journey</p>
+                      <h3 className="text-2xl font-semibold text-pill-navy">
+                        {profile?.name || 'Welcome!'}
+                      </h3>
+                      <p className="text-pill-navy/70">{profile?.email || user?.email}</p>
+                      {profile?.age && (
+                        <p className="text-pill-navy/60">Age: {profile.age}</p>
+                      )}
                     </div>
                   </div>
                   
@@ -103,7 +138,6 @@ const Index = () => {
                   <div className="grid md:grid-cols-2 gap-4">
                     <Card className="p-6 hover:scale-105 transition-transform duration-200">
                       <h3 className="font-semibold text-pill-navy mb-2 flex items-center gap-2">
-                        <Bell className="w-5 h-5" />
                         Notifications
                       </h3>
                       <p className="text-pill-navy/70 mb-4">Customize reminder preferences</p>
@@ -118,7 +152,6 @@ const Index = () => {
                     
                     <Card className="p-6 hover:scale-105 transition-transform duration-200">
                       <h3 className="font-semibold text-pill-navy mb-2 flex items-center gap-2">
-                        <Clock className="w-5 h-5" />
                         Timezone
                       </h3>
                       <p className="text-pill-navy/70 mb-4">Set to India Standard Time</p>

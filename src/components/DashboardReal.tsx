@@ -2,13 +2,16 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Camera, Calendar, MessageCircle, Plus, Clock } from 'lucide-react';
+import { Heart, Camera, Calendar, MessageCircle, Plus, Clock, Droplets, Activity } from 'lucide-react';
 import MedicineCardReal from '@/components/MedicineCardReal';
 import AddMedicineModalReal from '@/components/AddMedicineModalReal';
 import ScheduleModal from '@/components/ScheduleModal';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
+import HydrationTracker from '@/components/HydrationTracker';
+import SymptomChecker from '@/components/SymptomChecker';
 import { useMedicines } from '@/hooks/useMedicines';
+import { useHydration } from '@/hooks/useHydration';
 import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardReal = () => {
@@ -16,8 +19,11 @@ const DashboardReal = () => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [showHydrationTracker, setShowHydrationTracker] = useState(false);
+  const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   
   const { medicines, loading, deleteMedicine } = useMedicines();
+  const { logs: hydrationLogs } = useHydration();
   const { user } = useAuth();
 
   const currentTime = new Date();
@@ -47,6 +53,11 @@ const DashboardReal = () => {
   const todaysMedicines = medicines.filter(med => med.date === today);
   const completedToday = todaysMedicines.filter(med => med.taken).length;
   const pendingToday = todaysMedicines.filter(med => !med.taken).length;
+
+  // Get today's hydration
+  const todaysHydration = hydrationLogs.find(log => log.date === today);
+  const hydrationGoal = 3; // 3L daily goal
+  const hydrationProgress = todaysHydration ? (todaysHydration.liters / hydrationGoal) * 100 : 0;
 
   if (loading) {
     return (
@@ -86,14 +97,14 @@ const DashboardReal = () => {
       </Card>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-green-600 font-bold text-lg">{completedToday}</span>
             </div>
             <div>
-              <h3 className="font-semibold text-pill-navy">Completed Today</h3>
+              <h3 className="font-semibold text-pill-navy">Completed</h3>
               <p className="text-pill-navy/70 text-sm">Medicines taken</p>
             </div>
           </div>
@@ -105,8 +116,20 @@ const DashboardReal = () => {
               <Clock className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-pill-navy">Pending Today</h3>
-              <p className="text-pill-navy/70 text-sm">{pendingToday} medicines remaining</p>
+              <h3 className="font-semibold text-pill-navy">Pending</h3>
+              <p className="text-pill-navy/70 text-sm">{pendingToday} remaining</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <Droplets className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-pill-navy">Hydration</h3>
+              <p className="text-pill-navy/70 text-sm">{Math.round(hydrationProgress)}% of goal</p>
             </div>
           </div>
         </Card>
@@ -118,7 +141,7 @@ const DashboardReal = () => {
             </div>
             <div>
               <h3 className="font-semibold text-pill-navy">Total Medicines</h3>
-              <p className="text-pill-navy/70 text-sm">In your schedule</p>
+              <p className="text-pill-navy/70 text-sm">In schedule</p>
             </div>
           </div>
         </Card>
@@ -127,7 +150,7 @@ const DashboardReal = () => {
       {/* Quick Actions */}
       <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
         <h3 className="text-2xl font-semibold text-pill-navy mb-6 font-montserrat">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Button 
             onClick={() => setShowAddMedicine(true)}
             className="h-20 flex flex-col gap-2 bg-pill-navy hover:bg-pill-navy/90 text-white transition-all duration-200 hover:scale-105"
@@ -161,6 +184,24 @@ const DashboardReal = () => {
           >
             <Plus className="w-6 h-6" />
             <span className="text-sm">Add Doctor</span>
+          </Button>
+
+          <Button 
+            onClick={() => setShowHydrationTracker(true)}
+            variant="outline" 
+            className="h-20 flex flex-col gap-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white transition-all duration-200 hover:scale-105"
+          >
+            <Droplets className="w-6 h-6" />
+            <span className="text-sm">Hydration</span>
+          </Button>
+
+          <Button 
+            onClick={() => setShowSymptomChecker(true)}
+            variant="outline" 
+            className="h-20 flex flex-col gap-2 border-red-500 text-red-600 hover:bg-red-500 hover:text-white transition-all duration-200 hover:scale-105"
+          >
+            <Activity className="w-6 h-6" />
+            <span className="text-sm">Symptoms</span>
           </Button>
         </div>
       </Card>
@@ -216,6 +257,14 @@ const DashboardReal = () => {
       <DoctorModal 
         isOpen={showDoctorModal} 
         onClose={() => setShowDoctorModal(false)} 
+      />
+      <HydrationTracker 
+        isOpen={showHydrationTracker} 
+        onClose={() => setShowHydrationTracker(false)} 
+      />
+      <SymptomChecker 
+        isOpen={showSymptomChecker} 
+        onClose={() => setShowSymptomChecker(false)} 
       />
     </div>
   );

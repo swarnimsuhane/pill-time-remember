@@ -23,9 +23,9 @@ const DashboardReal = () => {
   const [showHydrationTracker, setShowHydrationTracker] = useState(false);
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   
-  const { medicines, loading, deleteMedicine } = useMedicines();
-  const { logs: hydrationLogs } = useHydration();
-  const { logs: symptomLogs } = useSymptoms();
+  const { medicines, loading: medicinesLoading, deleteMedicine } = useMedicines();
+  const { logs: hydrationLogs, loading: hydrationLoading } = useHydration();
+  const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
   const { user } = useAuth();
 
   const currentTime = new Date();
@@ -61,12 +61,20 @@ const DashboardReal = () => {
   const hydrationGoal = 3; // 3L daily goal
   const hydrationProgress = todaysHydration ? (todaysHydration.liters / hydrationGoal) * 100 : 0;
 
-  if (loading) {
+  console.log('Dashboard data:', {
+    medicines: medicines.length,
+    todaysMedicines: todaysMedicines.length,
+    hydrationLogs: hydrationLogs.length,
+    symptomLogs: symptomLogs.length,
+    loading: { medicinesLoading, hydrationLoading, symptomsLoading }
+  });
+
+  if (medicinesLoading || hydrationLoading || symptomsLoading) {
     return (
       <div className="animate-fade-in space-y-8">
         <div className="text-center py-12">
           <div className="w-8 h-8 border-4 border-pill-navy border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-pill-navy/70">Loading your medicines...</p>
+          <p className="text-pill-navy/70">Loading your health dashboard...</p>
         </div>
       </div>
     );

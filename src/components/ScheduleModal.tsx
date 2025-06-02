@@ -6,22 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { X, Plus, Clock, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useMedicines } from '@/hooks/useMedicines';
 
 interface ScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface ScheduleItem {
-  id: string;
-  medicine: string;
-  time: string;
-  dosage: string;
-  frequency: string;
-}
-
 const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
-  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [newSchedule, setNewSchedule] = useState({
     medicine: '',
     time: '',
@@ -29,10 +21,11 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
     frequency: 'daily'
   });
   const { toast } = useToast();
+  const { medicines, addMedicine, deleteMedicine } = useMedicines();
 
   if (!isOpen) return null;
 
-  const handleAddSchedule = () => {
+  const handleAddSchedule = async () => {
     if (!newSchedule.medicine || !newSchedule.time || !newSchedule.dosage) {
       toast({
         title: "Missing Information",
@@ -42,12 +35,16 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
       return;
     }
 
-    const schedule: ScheduleItem = {
-      id: Date.now().toString(),
-      ...newSchedule
-    };
+    const today = new Date().toISOString().split('T')[0];
+    
+    await addMedicine({
+      name: newSchedule.medicine,
+      time: newSchedule.time,
+      dosage: newSchedule.dosage,
+      date: today,
+      taken: false
+    });
 
-    setSchedules(prev => [...prev, schedule]);
     setNewSchedule({
       medicine: '',
       time: '',
@@ -56,28 +53,26 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
     });
 
     toast({
-      title: "Schedule Added",
-      description: `${newSchedule.medicine} scheduled for ${newSchedule.time}`,
+      title: "Medicine Added",
+      description: `${newSchedule.medicine} has been added to your schedule`,
     });
   };
 
-  const handleRemoveSchedule = (id: string) => {
-    setSchedules(prev => prev.filter(schedule => schedule.id !== id));
-    toast({
-      title: "Schedule Removed",
-      description: "Medication schedule has been removed",
-    });
+  const handleRemoveSchedule = async (id: string) => {
+    await deleteMedicine(id);
   };
 
   const handleSaveAll = () => {
-    // Save to localStorage for now
-    localStorage.setItem('pilltime_schedules', JSON.stringify(schedules));
     toast({
       title: "Schedules Saved",
-      description: `${schedules.length} medication schedules saved successfully`,
+      description: `Your medication schedule has been saved successfully`,
     });
     onClose();
   };
+
+  // Get today's medicines for display
+  const today = new Date().toISOString().split('T')[0];
+  const todaysMedicines = medicines.filter(med => med.date === today);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -148,27 +143,27 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
         {/* Current Schedules */}
         <div className="space-y-4">
           <h4 className="font-semibold text-pill-navy">Current Schedules</h4>
-          {schedules.length === 0 ? (
-            <p className="text-pill-navy/70 text-center py-8">No schedules added yet</p>
+          {todaysMedicines.length === 0 ? (
+            <p className="text-pill-navy/70 text-center py-8">No medicines scheduled for today</p>
           ) : (
             <div className="space-y-3">
-              {schedules.map((schedule) => (
-                <div key={schedule.id} className="flex items-center justify-between p-4 bg-white border border-pill-teal rounded-lg">
+              {todaysMedicines.map((medicine) => (
+                <div key={medicine.id} className="flex items-center justify-between p-4 bg-white border border-pill-teal rounded-lg">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-pill-teal rounded-full flex items-center justify-center">
                       <Clock className="w-5 h-5 text-pill-navy" />
                     </div>
                     <div>
-                      <h5 className="font-medium text-pill-navy">{schedule.medicine}</h5>
+                      <h5 className="font-medium text-pill-navy">{medicine.name}</h5>
                       <p className="text-sm text-pill-navy/70">
-                        {schedule.dosage} at {schedule.time} ({schedule.frequency})
+                        {medicine.dosage} at {medicine.time} (daily)
                       </p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveSchedule(schedule.id)}
+                    onClick={() => handleRemoveSchedule(medicine.id)}
                     className="text-red-600 hover:text-red-800"
                   >
                     <Trash2 className="w-4 h-4" />

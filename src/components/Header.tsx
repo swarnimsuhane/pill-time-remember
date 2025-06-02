@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User, Bell, Settings, Home } from 'lucide-react';
+import { useMedicines } from '@/hooks/useMedicines';
 
 interface HeaderProps {
   currentView: string;
@@ -10,6 +11,13 @@ interface HeaderProps {
 }
 
 const Header = ({ currentView, setCurrentView, onNotificationClick }: HeaderProps) => {
+  const { medicines } = useMedicines();
+  
+  // Get real notification count based on pending medicines
+  const today = new Date().toISOString().split('T')[0];
+  const pendingMedicines = medicines.filter(med => med.date === today && !med.taken);
+  const notificationCount = pendingMedicines.length;
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-pill-teal/30 pill-shadow">
       <div className="max-w-6xl mx-auto px-4 py-4">
@@ -61,9 +69,11 @@ const Header = ({ currentView, setCurrentView, onNotificationClick }: HeaderProp
               className="text-pill-navy hover:bg-pill-light relative"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-pill-red rounded-full text-white text-xs flex items-center justify-center">
-                3
-              </span>
+              {notificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-pill-red rounded-full text-white text-xs flex items-center justify-center">
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </span>
+              )}
             </Button>
 
             <Button

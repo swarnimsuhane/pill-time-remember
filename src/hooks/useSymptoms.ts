@@ -19,18 +19,28 @@ export const useSymptoms = () => {
   const { toast } = useToast();
 
   const fetchLogs = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
+      console.log('Fetching symptom logs for user:', user.id);
       const { data, error } = await supabase
         .from('symptoms logs')
         .select('*')
         .eq('user_id', user.id)
         .order('date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching symptom logs:', error);
+        throw error;
+      }
+      
+      console.log('Fetched symptom logs:', data);
       setLogs(data || []);
     } catch (error: any) {
+      console.error('Failed to fetch symptom logs:', error);
       toast({
         title: "Error",
         description: "Failed to fetch symptom logs",
@@ -48,6 +58,7 @@ export const useSymptoms = () => {
     const suggestions = generateSuggestions(symptoms);
 
     try {
+      console.log('Adding symptom log:', { symptoms, suggestions });
       const { data, error } = await supabase
         .from('symptoms logs')
         .insert([{ 
@@ -59,7 +70,12 @@ export const useSymptoms = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating symptom log:', error);
+        throw error;
+      }
+      
+      console.log('Created symptom log:', data);
       setLogs(prev => [data, ...prev]);
       
       toast({
@@ -67,6 +83,7 @@ export const useSymptoms = () => {
         description: "Symptom logged successfully",
       });
     } catch (error: any) {
+      console.error('Failed to log symptoms:', error);
       toast({
         title: "Error",
         description: "Failed to log symptoms",

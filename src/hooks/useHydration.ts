@@ -18,18 +18,28 @@ export const useHydration = () => {
   const { toast } = useToast();
 
   const fetchLogs = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
+      console.log('Fetching hydration logs for user:', user.id);
       const { data, error } = await supabase
         .from('hydration logs')
         .select('*')
         .eq('user_id', user.id)
         .order('date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching hydration logs:', error);
+        throw error;
+      }
+      
+      console.log('Fetched hydration logs:', data);
       setLogs(data || []);
     } catch (error: any) {
+      console.error('Failed to fetch hydration logs:', error);
       toast({
         title: "Error",
         description: "Failed to fetch hydration logs",
@@ -46,6 +56,7 @@ export const useHydration = () => {
     const logDate = date || new Date().toISOString().split('T')[0];
 
     try {
+      console.log('Adding hydration log:', { liters, date: logDate });
       // Check if log exists for today
       const { data: existing } = await supabase
         .from('hydration logs')
@@ -63,7 +74,12 @@ export const useHydration = () => {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating hydration log:', error);
+          throw error;
+        }
+        
+        console.log('Updated hydration log:', data);
         setLogs(prev => prev.map(log => log.id === existing.id ? data : log));
       } else {
         // Create new log
@@ -73,7 +89,12 @@ export const useHydration = () => {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating hydration log:', error);
+          throw error;
+        }
+        
+        console.log('Created hydration log:', data);
         setLogs(prev => [data, ...prev]);
       }
 
@@ -82,6 +103,7 @@ export const useHydration = () => {
         description: `Added ${liters}L to your hydration log`,
       });
     } catch (error: any) {
+      console.error('Failed to log hydration:', error);
       toast({
         title: "Error",
         description: "Failed to log hydration",

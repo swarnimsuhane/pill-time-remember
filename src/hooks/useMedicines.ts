@@ -21,18 +21,28 @@ export const useMedicines = () => {
   const { toast } = useToast();
 
   const fetchMedicines = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
+      console.log('Fetching medicines for user:', user.id);
       const { data, error } = await supabase
         .from('medicines')
         .select('*')
         .eq('user_id', user.id)
         .order('time', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching medicines:', error);
+        throw error;
+      }
+      
+      console.log('Fetched medicines:', data);
       setMedicines(data || []);
     } catch (error: any) {
+      console.error('Failed to fetch medicines:', error);
       toast({
         title: "Error",
         description: "Failed to fetch medicines",
@@ -47,19 +57,26 @@ export const useMedicines = () => {
     if (!user) return;
 
     try {
+      console.log('Adding medicine:', medicine);
       const { data, error } = await supabase
         .from('medicines')
         .insert([{ ...medicine, user_id: user.id }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding medicine:', error);
+        throw error;
+      }
+      
+      console.log('Added medicine:', data);
       setMedicines(prev => [...prev, data]);
       toast({
         title: "Success",
         description: "Medicine added successfully",
       });
     } catch (error: any) {
+      console.error('Failed to add medicine:', error);
       toast({
         title: "Error",
         description: "Failed to add medicine",
@@ -72,6 +89,7 @@ export const useMedicines = () => {
     if (!user) return;
 
     try {
+      console.log('Updating medicine:', id, updates);
       const { data, error } = await supabase
         .from('medicines')
         .update(updates)
@@ -80,9 +98,20 @@ export const useMedicines = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating medicine:', error);
+        throw error;
+      }
+      
+      console.log('Updated medicine:', data);
       setMedicines(prev => prev.map(med => med.id === id ? data : med));
+      
+      toast({
+        title: "Success",
+        description: updates.taken ? "Medicine marked as taken" : "Medicine updated successfully",
+      });
     } catch (error: any) {
+      console.error('Failed to update medicine:', error);
       toast({
         title: "Error",
         description: "Failed to update medicine",
@@ -95,19 +124,26 @@ export const useMedicines = () => {
     if (!user) return;
 
     try {
+      console.log('Deleting medicine:', id);
       const { error } = await supabase
         .from('medicines')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting medicine:', error);
+        throw error;
+      }
+      
+      console.log('Deleted medicine:', id);
       setMedicines(prev => prev.filter(med => med.id !== id));
       toast({
         title: "Success",
         description: "Medicine deleted successfully",
       });
     } catch (error: any) {
+      console.error('Failed to delete medicine:', error);
       toast({
         title: "Error",
         description: "Failed to delete medicine",

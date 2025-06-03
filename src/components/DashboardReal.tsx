@@ -46,7 +46,11 @@ const DashboardReal = () => {
   });
 
   const getGreeting = () => {
-    const hour = new Date().getHours();
+    // Get current hour in IST (India Standard Time)
+    const currentTime = new Date();
+    const istTime = new Date(currentTime.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    const hour = istTime.getHours();
+    
     if (hour < 12) return "Good Morning! 🌅";
     if (hour < 17) return "Good Afternoon! ☀️";
     return "Good Evening! 🌆";

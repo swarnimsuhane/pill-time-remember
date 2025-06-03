@@ -71,10 +71,10 @@ const ProfileModal = ({ isOpen, onClose, type }: ProfileModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-md p-6 bg-white max-h-[80vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-pill-navy">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-md p-4 sm:p-6 bg-white max-h-[90vh] sm:max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-pill-navy">
             {type === 'personal' ? 'Personal Information' : 'Medical History'}
           </h3>
           <Button variant="ghost" size="sm" onClick={onClose}>

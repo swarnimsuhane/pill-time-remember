@@ -76,51 +76,52 @@ const Index = () => {
           
           {currentView === 'profile' && (
             <div className="animate-fade-in">
-              <Card className="p-8 bg-white/90 backdrop-blur-sm pill-shadow">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-bold text-pill-navy font-montserrat">Your Profile</h2>
+              <Card className="p-4 sm:p-6 lg:p-8 bg-white/90 backdrop-blur-sm pill-shadow">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-pill-navy font-montserrat">Your Profile</h2>
                   <Button
                     onClick={signOut}
                     variant="outline"
-                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                    size="sm"
+                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white self-start"
                   >
                     Sign Out
                   </Button>
                 </div>
-                <div className="grid gap-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 bg-pill-teal rounded-full flex items-center justify-center">
-                      <User className="w-10 h-10 text-pill-navy" />
+                <div className="grid gap-4 sm:gap-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-pill-teal rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-8 h-8 sm:w-10 sm:h-10 text-pill-navy" />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-semibold text-pill-navy">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-pill-navy break-words">
                         {profile?.name || 'Welcome!'}
                       </h3>
-                      <p className="text-pill-navy/70">{profile?.email || user?.email}</p>
+                      <p className="text-sm sm:text-base text-pill-navy/70 break-all">{profile?.email || user?.email}</p>
                       {profile?.age && (
-                        <p className="text-pill-navy/60">Age: {profile.age}</p>
+                        <p className="text-sm text-pill-navy/60">Age: {profile.age}</p>
                       )}
                     </div>
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                     <Card 
-                      className="p-4 bg-pill-light hover:bg-pill-teal/20 transition-colors cursor-pointer"
+                      className="p-3 sm:p-4 bg-pill-light hover:bg-pill-teal/20 transition-colors cursor-pointer"
                       onClick={() => handleProfileClick('personal')}
                     >
-                      <h4 className="font-semibold text-pill-navy mb-2">Personal Information</h4>
-                      <p className="text-pill-navy/70">Update your profile details</p>
-                      <Button className="mt-3 bg-pill-navy hover:bg-pill-navy/90" size="sm">
+                      <h4 className="font-semibold text-pill-navy mb-1 sm:mb-2 text-sm sm:text-base">Personal Information</h4>
+                      <p className="text-pill-navy/70 text-xs sm:text-sm mb-2 sm:mb-3">Update your profile details</p>
+                      <Button className="bg-pill-navy hover:bg-pill-navy/90 text-xs sm:text-sm" size="sm">
                         Edit Details
                       </Button>
                     </Card>
                     <Card 
-                      className="p-4 bg-pill-light hover:bg-pill-teal/20 transition-colors cursor-pointer"
+                      className="p-3 sm:p-4 bg-pill-light hover:bg-pill-teal/20 transition-colors cursor-pointer"
                       onClick={() => handleProfileClick('medical')}
                     >
-                      <h4 className="font-semibold text-pill-navy mb-2">Medical History</h4>
-                      <p className="text-pill-navy/70">Track your health records</p>
-                      <Button className="mt-3 bg-pill-navy hover:bg-pill-navy/90" size="sm">
+                      <h4 className="font-semibold text-pill-navy mb-1 sm:mb-2 text-sm sm:text-base">Medical History</h4>
+                      <p className="text-pill-navy/70 text-xs sm:text-sm mb-2 sm:mb-3">Track your health records</p>
+                      <Button className="bg-pill-navy hover:bg-pill-navy/90 text-xs sm:text-sm" size="sm">
                         Update History
                       </Button>
                     </Card>

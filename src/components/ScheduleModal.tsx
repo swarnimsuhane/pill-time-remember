@@ -37,25 +37,33 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
 
     const today = new Date().toISOString().split('T')[0];
     
-    await addMedicine({
-      name: newSchedule.medicine,
-      time: newSchedule.time,
-      dosage: newSchedule.dosage,
-      date: today,
-      taken: false
-    });
+    try {
+      await addMedicine({
+        name: newSchedule.medicine,
+        time: newSchedule.time,
+        dosage: newSchedule.dosage,
+        date: today,
+        taken: false
+      });
 
-    setNewSchedule({
-      medicine: '',
-      time: '',
-      dosage: '',
-      frequency: 'daily'
-    });
+      setNewSchedule({
+        medicine: '',
+        time: '',
+        dosage: '',
+        frequency: 'daily'
+      });
 
-    toast({
-      title: "Medicine Added",
-      description: `${newSchedule.medicine} has been added to your schedule`,
-    });
+      toast({
+        title: "Medicine Added",
+        description: `${newSchedule.medicine} scheduled for ${newSchedule.time}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add medicine to schedule",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRemoveSchedule = async (id: string) => {

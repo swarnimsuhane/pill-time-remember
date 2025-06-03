@@ -17,8 +17,12 @@ interface MedicineCardProps {
 const MedicineCardReal = ({ id, name, time, dosage, taken, onDelete }: MedicineCardProps) => {
   const { updateMedicine } = useMedicines();
 
-  const handleTakeNow = () => {
-    updateMedicine(id, { taken: true });
+  const handleTakeNow = async () => {
+    try {
+      await updateMedicine(id, { taken: true });
+    } catch (error) {
+      console.error('Failed to update medicine:', error);
+    }
   };
 
   const formatTime = (timeString: string) => {

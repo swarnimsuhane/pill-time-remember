@@ -44,7 +44,7 @@ const DashboardReal = () => {
   });
 
   const getGreeting = () => {
-    const hour = currentTime.getHours();
+    const hour = new Date().getHours();
     if (hour < 12) return "Good Morning! 🌅";
     if (hour < 17) return "Good Afternoon! ☀️";
     return "Good Evening! 🌆";
@@ -147,11 +147,11 @@ const DashboardReal = () => {
         <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-pill-teal rounded-full flex items-center justify-center">
-              <span className="text-pill-navy font-bold text-lg">{medicines.length}</span>
+              <span className="text-pill-navy font-bold text-lg">{todaysMedicines.length}</span>
             </div>
             <div>
-              <h3 className="font-semibold text-pill-navy">Total Medicines</h3>
-              <p className="text-pill-navy/70 text-sm">In schedule</p>
+              <h3 className="font-semibold text-pill-navy">Today's Schedule</h3>
+              <p className="text-pill-navy/70 text-sm">{todaysMedicines.length} medicines</p>
             </div>
           </div>
         </Card>

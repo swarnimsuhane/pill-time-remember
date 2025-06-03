@@ -106,10 +106,17 @@ export const useMedicines = () => {
       console.log('Updated medicine:', data);
       setMedicines(prev => prev.map(med => med.id === id ? data : med));
       
-      toast({
-        title: "Success",
-        description: updates.taken ? "Medicine marked as taken" : "Medicine updated successfully",
-      });
+      if (updates.taken) {
+        toast({
+          title: "✅ Medicine Taken",
+          description: `${data.name} marked as completed`,
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Medicine updated successfully",
+        });
+      }
     } catch (error: any) {
       console.error('Failed to update medicine:', error);
       toast({

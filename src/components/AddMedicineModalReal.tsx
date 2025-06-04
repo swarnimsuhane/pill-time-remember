@@ -37,15 +37,26 @@ const AddMedicineModalReal = ({ isOpen, onClose }: AddMedicineModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!medicine.name || !medicine.dosage || !medicine.time) return;
+    console.log('Form submitted with medicine:', medicine);
+    
+    if (!medicine.name || !medicine.dosage || !medicine.time) {
+      console.log('Missing required fields:', { 
+        name: medicine.name, 
+        dosage: medicine.dosage, 
+        time: medicine.time 
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
+      console.log('Attempting to add medicine...');
       await addMedicine({
         ...medicine,
         taken: false,
       });
       
+      console.log('Medicine added successfully');
       // Reset form
       setMedicine({
         name: '',

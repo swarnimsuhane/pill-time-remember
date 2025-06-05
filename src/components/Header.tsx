@@ -2,7 +2,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User, Bell, Settings, Home, Menu } from 'lucide-react';
-import { useMedicines } from '@/hooks/useMedicines';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HeaderProps {
@@ -12,13 +11,10 @@ interface HeaderProps {
 }
 
 const Header = ({ currentView, setCurrentView, onNotificationClick }: HeaderProps) => {
-  const { medicines } = useMedicines();
   const isMobile = useIsMobile();
   
-  // Get real notification count based on pending medicines
-  const today = new Date().toISOString().split('T')[0];
-  const pendingMedicines = medicines.filter(med => med.date === today && !med.taken);
-  const notificationCount = pendingMedicines.length;
+  // Default notification count (can be updated based on other features later)
+  const notificationCount = 0;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-pill-teal/30 pill-shadow">

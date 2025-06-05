@@ -2,29 +2,22 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Camera, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle } from 'lucide-react';
-import MedicineCardReal from '@/components/MedicineCardReal';
-import AddMedicineModalReal from '@/components/AddMedicineModalReal';
-import ScheduleModal from '@/components/ScheduleModal';
+import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle } from 'lucide-react';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
 import HydrationTracker from '@/components/HydrationTracker';
 import SymptomChecker from '@/components/SymptomChecker';
-import { useMedicines } from '@/hooks/useMedicines';
 import { useHydration } from '@/hooks/useHydration';
 import { useSymptoms } from '@/hooks/useSymptoms';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const DashboardReal = () => {
-  const [showAddMedicine, setShowAddMedicine] = useState(false);
-  const [showSchedule, setShowSchedule] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [showHydrationTracker, setShowHydrationTracker] = useState(false);
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   
-  const { medicines, loading: medicinesLoading, deleteMedicine } = useMedicines();
   const { logs: hydrationLogs, loading: hydrationLoading } = useHydration();
   const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
   const { user } = useAuth();
@@ -56,26 +49,19 @@ const DashboardReal = () => {
     return "Good Evening! 🌆";
   };
 
-  // Filter today's medicines
-  const today = new Date().toISOString().split('T')[0];
-  const todaysMedicines = medicines.filter(med => med.date === today);
-  const completedToday = todaysMedicines.filter(med => med.taken).length;
-  const pendingToday = todaysMedicines.filter(med => !med.taken).length;
-
   // Get today's hydration
+  const today = new Date().toISOString().split('T')[0];
   const todaysHydration = hydrationLogs.find(log => log.date === today);
   const hydrationGoal = 3; // 3L daily goal
   const hydrationProgress = todaysHydration ? (todaysHydration.liters / hydrationGoal) * 100 : 0;
 
   console.log('Dashboard data:', {
-    medicines: medicines.length,
-    todaysMedicines: todaysMedicines.length,
     hydrationLogs: hydrationLogs.length,
     symptomLogs: symptomLogs.length,
-    loading: { medicinesLoading, hydrationLoading, symptomsLoading }
+    loading: { hydrationLoading, symptomsLoading }
   });
 
-  if (medicinesLoading || hydrationLoading || symptomsLoading) {
+  if (hydrationLoading || symptomsLoading) {
     return (
       <div className="animate-fade-in space-y-8">
         <div className="text-center py-12">
@@ -118,31 +104,7 @@ const DashboardReal = () => {
       </Card>
 
       {/* Quick Stats */}
-      <div className={`grid grid-cols-2 md:grid-cols-4 ${isMobile ? 'gap-2' : 'gap-4'}`}>
-        <Card className={`${isMobile ? 'p-3' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
-          <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
-            <div className={`bg-green-100 rounded-full flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-              <span className={`text-green-600 font-bold ${isMobile ? 'text-sm' : 'text-lg'}`}>{completedToday}</span>
-            </div>
-            <div>
-              <h3 className={`font-semibold text-pill-navy ${isMobile ? 'text-xs' : ''}`}>Completed</h3>
-              <p className={`text-pill-navy/70 ${isMobile ? 'text-xs' : 'text-sm'}`}>Medicines taken</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className={`${isMobile ? 'p-3' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
-          <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
-            <div className={`bg-orange-100 rounded-full flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-              <Clock className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-            </div>
-            <div>
-              <h3 className={`font-semibold text-pill-navy ${isMobile ? 'text-xs' : ''}`}>Pending</h3>
-              <p className={`text-pill-navy/70 ${isMobile ? 'text-xs' : 'text-sm'}`}>{pendingToday} remaining</p>
-            </div>
-          </div>
-        </Card>
-
+      <div className={`grid grid-cols-2 md:grid-cols-3 ${isMobile ? 'gap-2' : 'gap-4'}`}>
         <Card className={`${isMobile ? 'p-3' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
           <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
             <div className={`bg-blue-100 rounded-full flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
@@ -157,12 +119,24 @@ const DashboardReal = () => {
 
         <Card className={`${isMobile ? 'p-3' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
           <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
-            <div className={`bg-pill-teal rounded-full flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-              <span className={`text-pill-navy font-bold ${isMobile ? 'text-sm' : 'text-lg'}`}>{todaysMedicines.length}</span>
+            <div className={`bg-red-100 rounded-full flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+              <Activity className={`text-red-600 ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
             </div>
             <div>
-              <h3 className={`font-semibold text-pill-navy ${isMobile ? 'text-xs' : ''}`}>Today's Schedule</h3>
-              <p className={`text-pill-navy/70 ${isMobile ? 'text-xs' : 'text-sm'}`}>{todaysMedicines.length} medicines</p>
+              <h3 className={`font-semibold text-pill-navy ${isMobile ? 'text-xs' : ''}`}>Symptoms</h3>
+              <p className={`text-pill-navy/70 ${isMobile ? 'text-xs' : 'text-sm'}`}>{symptomLogs.length} logged</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className={`${isMobile ? 'p-3' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
+          <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
+            <div className={`bg-pill-teal rounded-full flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+              <Heart className={`text-pill-navy ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
+            </div>
+            <div>
+              <h3 className={`font-semibold text-pill-navy ${isMobile ? 'text-xs' : ''}`}>Health Score</h3>
+              <p className={`text-pill-navy/70 ${isMobile ? 'text-xs' : 'text-sm'}`}>Good</p>
             </div>
           </div>
         </Card>
@@ -171,28 +145,10 @@ const DashboardReal = () => {
       {/* Quick Actions */}
       <Card className={`${isMobile ? 'p-4' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
         <h3 className={`font-semibold text-pill-navy mb-4 font-montserrat ${isMobile ? 'text-lg' : 'text-2xl'}`}>Quick Actions</h3>
-        <div className={`grid ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4'}`}>
-          <Button 
-            onClick={() => setShowAddMedicine(true)}
-            className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 bg-pill-navy hover:bg-pill-navy/90 text-white transition-all duration-200 hover:scale-105`}
-          >
-            <Camera className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-            <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>Add Medicine</span>
-          </Button>
-          
-          <Button 
-            onClick={() => setShowSchedule(true)}
-            variant="outline" 
-            className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105`}
-          >
-            <Calendar className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-            <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>Schedule</span>
-          </Button>
-          
+        <div className={`grid ${isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-2 md:grid-cols-4 gap-4'}`}>
           <Button 
             onClick={() => setShowAIAssistant(true)}
-            variant="outline" 
-            className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105`}
+            className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 bg-pill-navy hover:bg-pill-navy/90 text-white transition-all duration-200 hover:scale-105`}
           >
             <MessageCircle className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
             <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>AI Assistant</span>
@@ -227,39 +183,17 @@ const DashboardReal = () => {
         </div>
       </Card>
 
-      {/* Today's Medicines */}
+      {/* Health Overview */}
       <Card className={`${isMobile ? 'p-4' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
         <h3 className={`font-semibold text-pill-navy mb-4 font-montserrat ${isMobile ? 'text-lg' : 'text-2xl'}`}>
-          Today's Medicines
+          Health Overview
         </h3>
-        <div className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
-          {todaysMedicines.length > 0 ? (
-            todaysMedicines.map((medicine) => (
-              <MedicineCardReal
-                key={medicine.id}
-                id={medicine.id}
-                name={medicine.name}
-                time={medicine.time}
-                dosage={medicine.dosage}
-                taken={medicine.taken}
-                onDelete={() => deleteMedicine(medicine.id)}
-              />
-            ))
-          ) : (
-            <div className={`text-center ${isMobile ? 'py-6' : 'py-8'}`}>
-              <div className={`bg-pill-light rounded-full flex items-center justify-center mx-auto mb-4 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`}>
-                <Camera className={`text-pill-navy ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
-              </div>
-              <p className={`text-pill-navy/70 mb-4 ${isMobile ? 'text-sm' : ''}`}>No medicines scheduled for today</p>
-              <Button 
-                onClick={() => setShowAddMedicine(true)}
-                className="bg-pill-navy hover:bg-pill-navy/90"
-                size={isMobile ? 'sm' : 'default'}
-              >
-                Add Your First Medicine
-              </Button>
-            </div>
-          )}
+        <div className={`text-center ${isMobile ? 'py-6' : 'py-8'}`}>
+          <div className={`bg-pill-light rounded-full flex items-center justify-center mx-auto mb-4 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`}>
+            <Heart className={`text-pill-navy ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
+          </div>
+          <p className={`text-pill-navy/70 mb-2 ${isMobile ? 'text-sm' : 'text-lg'}`}>Welcome to Pill Time!</p>
+          <p className={`text-pill-navy/50 ${isMobile ? 'text-xs' : ''}`}>Your health management companion</p>
         </div>
       </Card>
 
@@ -356,14 +290,6 @@ const DashboardReal = () => {
       </div>
 
       {/* Modals */}
-      <AddMedicineModalReal 
-        isOpen={showAddMedicine} 
-        onClose={() => setShowAddMedicine(false)} 
-      />
-      <ScheduleModal 
-        isOpen={showSchedule} 
-        onClose={() => setShowSchedule(false)} 
-      />
       <AIAssistant 
         isOpen={showAIAssistant} 
         onClose={() => setShowAIAssistant(false)} 

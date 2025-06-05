@@ -68,47 +68,6 @@ export type Database = {
         }
         Relationships: []
       }
-      medicines: {
-        Row: {
-          created_at: string | null
-          date: string | null
-          dosage: string | null
-          id: string
-          name: string | null
-          taken: boolean | null
-          time: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          date?: string | null
-          dosage?: string | null
-          id?: string
-          name?: string | null
-          taken?: boolean | null
-          time?: string | null
-          user_id?: string
-        }
-        Update: {
-          created_at?: string | null
-          date?: string | null
-          dosage?: string | null
-          id?: string
-          name?: string | null
-          taken?: boolean | null
-          time?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "medicines_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           age: number | null

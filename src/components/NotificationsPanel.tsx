@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, Bell, Clock, Check, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useMedicines } from '@/hooks/useMedicines';
 import { useHydration } from '@/hooks/useHydration';
 
 interface NotificationsPanelProps {
@@ -24,28 +23,14 @@ interface Notification {
 const NotificationsPanel = ({ isOpen, onClose }: NotificationsPanelProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { toast } = useToast();
-  const { medicines } = useMedicines();
   const { logs: hydrationLogs } = useHydration();
 
   useEffect(() => {
-    // Generate real notifications based on user data
+    // Generate notifications based on hydration
     const generateNotifications = () => {
       const newNotifications: Notification[] = [];
       const today = new Date().toISOString().split('T')[0];
       
-      // Medicine reminders
-      const todaysMedicines = medicines.filter(med => med.date === today && !med.taken);
-      todaysMedicines.forEach((med, index) => {
-        newNotifications.push({
-          id: `med-${med.id}`,
-          title: 'Medicine Reminder',
-          message: `Time to take your ${med.name} (${med.dosage})`,
-          type: 'reminder',
-          time: med.time,
-          isRead: false
-        });
-      });
-
       // Hydration reminder
       const todaysHydration = hydrationLogs.find(log => log.date === today);
       if (!todaysHydration || todaysHydration.liters < 2) {
@@ -65,7 +50,7 @@ const NotificationsPanel = ({ isOpen, onClose }: NotificationsPanelProps) => {
     if (isOpen) {
       generateNotifications();
     }
-  }, [isOpen, medicines, hydrationLogs]);
+  }, [isOpen, hydrationLogs]);
 
   if (!isOpen) return null;
 
@@ -122,7 +107,7 @@ const NotificationsPanel = ({ isOpen, onClose }: NotificationsPanelProps) => {
           <div className="p-8 text-center">
             <Bell className="w-12 h-12 text-pill-navy/30 mx-auto mb-4" />
             <p className="text-pill-navy/70">No notifications yet</p>
-            <p className="text-pill-navy/50 text-sm mt-2">Add medicines to get reminders</p>
+            <p className="text-pill-navy/50 text-sm mt-2">Stay hydrated to get reminders</p>
           </div>
         ) : (
           <>

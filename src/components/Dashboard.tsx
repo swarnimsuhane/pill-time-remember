@@ -3,17 +3,12 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Pill, Camera, Calendar, MessageCircle, Plus, Heart } from 'lucide-react';
-import MedicineCard from '@/components/MedicineCard';
 import QuickStats from '@/components/QuickStats';
 import UpcomingReminders from '@/components/UpcomingReminders';
-import AddMedicineModal from '@/components/AddMedicineModal';
-import ScheduleModal from '@/components/ScheduleModal';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
 
 const Dashboard = () => {
-  const [showAddMedicine, setShowAddMedicine] = useState(false);
-  const [showSchedule, setShowSchedule] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
 
@@ -44,28 +39,10 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
         <h3 className="text-2xl font-semibold text-pill-navy mb-6 font-montserrat">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button 
-            onClick={() => setShowAddMedicine(true)}
-            className="h-20 flex flex-col gap-2 bg-pill-navy hover:bg-pill-navy/90 text-white transition-all duration-200 hover:scale-105"
-          >
-            <Camera className="w-6 h-6" />
-            <span className="text-sm">Add Medicine</span>
-          </Button>
-          
-          <Button 
-            onClick={() => setShowSchedule(true)}
-            variant="outline" 
-            className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
-          >
-            <Calendar className="w-6 h-6" />
-            <span className="text-sm">Schedule</span>
-          </Button>
-          
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Button 
             onClick={() => setShowAIAssistant(true)}
-            variant="outline" 
-            className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
+            className="h-20 flex flex-col gap-2 bg-pill-navy hover:bg-pill-navy/90 text-white transition-all duration-200 hover:scale-105"
           >
             <MessageCircle className="w-6 h-6" />
             <span className="text-sm">AI Assistant</span>
@@ -79,36 +56,29 @@ const Dashboard = () => {
             <Plus className="w-6 h-6" />
             <span className="text-sm">Add Doctor</span>
           </Button>
+          
+          <Button 
+            variant="outline" 
+            className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
+          >
+            <Heart className="w-6 h-6" />
+            <span className="text-sm">Health Tips</span>
+          </Button>
         </div>
       </Card>
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Today's Medicines */}
+        {/* Health Overview */}
         <div className="lg:col-span-2">
           <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
             <h3 className="text-2xl font-semibold text-pill-navy mb-6 font-montserrat">
-              Today's Medicines
+              Health Overview
             </h3>
-            <div className="space-y-4">
-              <MedicineCard 
-                name="Vitamin D3"
-                time="09:00 AM"
-                dosage="1 tablet"
-                status="pending"
-              />
-              <MedicineCard 
-                name="Omega-3"
-                time="02:00 PM"
-                dosage="2 capsules"
-                status="taken"
-              />
-              <MedicineCard 
-                name="Calcium"
-                time="08:00 PM"
-                dosage="1 tablet"
-                status="pending"
-              />
+            <div className="text-center py-8">
+              <Heart className="w-16 h-16 text-pill-navy/30 mx-auto mb-4" />
+              <p className="text-pill-navy/70 text-lg mb-2">Welcome to Pill Time!</p>
+              <p className="text-pill-navy/50">Your health management companion</p>
             </div>
           </Card>
         </div>
@@ -120,14 +90,6 @@ const Dashboard = () => {
       </div>
 
       {/* Modals */}
-      <AddMedicineModal 
-        isOpen={showAddMedicine} 
-        onClose={() => setShowAddMedicine(false)} 
-      />
-      <ScheduleModal 
-        isOpen={showSchedule} 
-        onClose={() => setShowSchedule(false)} 
-      />
       <AIAssistant 
         isOpen={showAIAssistant} 
         onClose={() => setShowAIAssistant(false)} 

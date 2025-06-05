@@ -26,12 +26,50 @@ const AddMedicineModalReal = ({ isOpen, onClose }: AddMedicineModalProps) => {
 
   if (!isOpen) return null;
 
-  const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
-      // Here you could implement image processing with Google Vision API
-      // For now, we'll just store the image
+      setIsLoading(true);
+      
+      try {
+        // Convert image to base64
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const imageBase64 = event.target?.result as string;
+          
+          // Call the edge function to process the image
+          const response = await fetch('https://apnjcagpjdutxddnzfmu.functions.supabase.co/process-medicine-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageBase64 })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success && result.extractedInfo) {
+            // Auto-fill form fields with extracted information
+            if (result.extractedInfo.name && !medicine.name) {
+              setMedicine(prev => ({ ...prev, name: result.extractedInfo.name }));
+            }
+            if (result.extractedInfo.dosage && !medicine.dosage) {
+              setMedicine(prev => ({ ...prev, dosage: result.extractedInfo.dosage }));
+            }
+            
+            console.log('Extracted medicine info:', result.extractedInfo);
+          } else {
+            console.log('Could not extract medicine information from image');
+          }
+        };
+        
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('Error processing image:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

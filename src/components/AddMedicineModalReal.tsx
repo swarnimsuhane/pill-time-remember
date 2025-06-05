@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X, Camera, Upload } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 
 interface AddMedicineModalProps {
@@ -19,59 +19,11 @@ const AddMedicineModalReal = ({ isOpen, onClose }: AddMedicineModalProps) => {
     time: '',
     date: new Date().toISOString().split('T')[0],
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
   const { addMedicine } = useMedicines();
 
   if (!isOpen) return null;
-
-  const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setIsLoading(true);
-      
-      try {
-        // Convert image to base64
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const imageBase64 = event.target?.result as string;
-          
-          // Call the edge function to process the image
-          const response = await fetch('https://apnjcagpjdutxddnzfmu.functions.supabase.co/process-medicine-image', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ imageBase64 })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success && result.extractedInfo) {
-            // Auto-fill form fields with extracted information
-            if (result.extractedInfo.name && !medicine.name) {
-              setMedicine(prev => ({ ...prev, name: result.extractedInfo.name }));
-            }
-            if (result.extractedInfo.dosage && !medicine.dosage) {
-              setMedicine(prev => ({ ...prev, dosage: result.extractedInfo.dosage }));
-            }
-            
-            console.log('Extracted medicine info:', result.extractedInfo);
-          } else {
-            console.log('Could not extract medicine information from image');
-          }
-        };
-        
-        reader.readAsDataURL(file);
-      } catch (error) {
-        console.error('Error processing image:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +54,7 @@ const AddMedicineModalReal = ({ isOpen, onClose }: AddMedicineModalProps) => {
         time: '',
         date: new Date().toISOString().split('T')[0],
       });
-      setImageFile(null);
+      
       onClose();
     } catch (error) {
       console.error('Error adding medicine:', error);
@@ -123,44 +75,6 @@ const AddMedicineModalReal = ({ isOpen, onClose }: AddMedicineModalProps) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Image Capture */}
-            <div className="space-y-2">
-              <Label>Medicine Photo (Optional)</Label>
-              <div className="flex gap-2">
-                <label className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleImageCapture}
-                    className="sr-only"
-                  />
-                  <Button type="button" variant="outline" className="w-full" asChild>
-                    <span>
-                      <Camera className="w-4 h-4 mr-2" />
-                      Take Photo
-                    </span>
-                  </Button>
-                </label>
-                <label className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageCapture}
-                    className="sr-only"
-                  />
-                  <Button type="button" variant="outline" className="w-full" asChild>
-                    <span>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </span>
-                  </Button>
-                </label>
-              </div>
-              {imageFile && (
-                <p className="text-sm text-green-600">Photo selected: {imageFile.name}</p>
-              )}
-            </div>
 
             <div>
               <Label htmlFor="medicine-name">Medicine Name</Label>

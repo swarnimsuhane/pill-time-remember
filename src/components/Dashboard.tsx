@@ -7,10 +7,16 @@ import QuickStats from '@/components/QuickStats';
 import UpcomingReminders from '@/components/UpcomingReminders';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
+import AddMedicineModal from '@/components/AddMedicineModal';
+import MedicineCard from '@/components/MedicineCard';
+import { useMedicines } from '@/hooks/useMedicines';
 
 const Dashboard = () => {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [showAddMedicineModal, setShowAddMedicineModal] = useState(false);
+  
+  const { medicines, loading, deleteMedicine } = useMedicines();
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -49,6 +55,15 @@ const Dashboard = () => {
           </Button>
           
           <Button 
+            onClick={() => setShowAddMedicineModal(true)}
+            variant="outline" 
+            className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
+          >
+            <Pill className="w-6 h-6" />
+            <span className="text-sm">Add Medicine</span>
+          </Button>
+          
+          <Button 
             onClick={() => setShowDoctorModal(true)}
             variant="outline" 
             className="h-20 flex flex-col gap-2 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105"
@@ -65,6 +80,42 @@ const Dashboard = () => {
             <span className="text-sm">Health Tips</span>
           </Button>
         </div>
+      </Card>
+
+      {/* Medicine Schedule */}
+      <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
+        <h3 className="text-2xl font-semibold text-pill-navy mb-6 font-montserrat">
+          Medicine Schedule
+        </h3>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pill-navy mx-auto"></div>
+            <p className="text-pill-navy/70 mt-2">Loading medicines...</p>
+          </div>
+        ) : medicines.length === 0 ? (
+          <div className="text-center py-8">
+            <Pill className="w-16 h-16 text-pill-navy/30 mx-auto mb-4" />
+            <p className="text-pill-navy/70 text-lg mb-2">No medicines scheduled</p>
+            <p className="text-pill-navy/50 mb-4">Add your first medicine to get started</p>
+            <Button 
+              onClick={() => setShowAddMedicineModal(true)}
+              className="bg-pill-navy hover:bg-pill-navy/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Medicine
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {medicines.map((medicine) => (
+              <MedicineCard
+                key={medicine.id}
+                medicine={medicine}
+                onDelete={deleteMedicine}
+              />
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Main Content Grid */}
@@ -97,6 +148,10 @@ const Dashboard = () => {
       <DoctorModal 
         isOpen={showDoctorModal} 
         onClose={() => setShowDoctorModal(false)} 
+      />
+      <AddMedicineModal
+        isOpen={showAddMedicineModal}
+        onClose={() => setShowAddMedicineModal(false)}
       />
     </div>
   );

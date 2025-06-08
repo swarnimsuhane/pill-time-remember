@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      medicines: {
+        Row: {
+          created_at: string
+          dosage: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          time_slots: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dosage?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          time_slots: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          time_slots?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null

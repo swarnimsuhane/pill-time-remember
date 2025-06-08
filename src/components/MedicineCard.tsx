@@ -1,107 +1,93 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, Check, AlertCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Clock, Pill, Trash2, Edit } from 'lucide-react';
+import { Medicine } from '@/hooks/useMedicines';
 
 interface MedicineCardProps {
-  name: string;
-  time: string;
-  dosage: string;
-  status: 'pending' | 'taken' | 'missed';
+  medicine: Medicine;
+  onEdit?: (medicine: Medicine) => void;
+  onDelete?: (id: string) => void;
 }
 
-const MedicineCard = ({ name, time, dosage, status: initialStatus }: MedicineCardProps) => {
-  const [status, setStatus] = useState(initialStatus);
-  const { toast } = useToast();
-
-  const handleTakeNow = () => {
-    setStatus('taken');
-    toast({
-      title: "Medicine Taken",
-      description: `${name} marked as taken at ${new Date().toLocaleTimeString()}`,
-    });
-  };
-
-  const handleSkip = () => {
-    setStatus('missed');
-    toast({
-      title: "Medicine Skipped",
-      description: `${name} has been skipped for this dose`,
-      variant: "destructive"
-    });
-  };
-
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'taken':
-        return <Check className="w-5 h-5 text-green-600" />;
-      case 'missed':
-        return <AlertCircle className="w-5 h-5 text-pill-red" />;
-      default:
-        return <Clock className="w-5 h-5 text-pill-navy" />;
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (status) {
-      case 'taken':
-        return 'bg-green-50 border-green-200';
-      case 'missed':
-        return 'bg-red-50 border-red-200';
-      default:
-        return 'bg-pill-light border-pill-teal';
-    }
+const MedicineCard = ({ medicine, onEdit, onDelete }: MedicineCardProps) => {
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour24 = parseInt(hours);
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+    return `${hour12}:${minutes} ${ampm}`;
   };
 
   return (
-    <Card className={`p-4 transition-all duration-200 hover:scale-102 ${getStatusColor()}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center pill-shadow">
-            <div className="w-6 h-6 bg-gradient-to-t from-pill-red to-white rounded-full border border-pill-navy"></div>
+    <Card className="p-4 bg-white/90 backdrop-blur-sm pill-shadow hover:shadow-lg transition-all duration-200">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-pill-teal rounded-full flex items-center justify-center">
+            <Pill className="w-5 h-5 text-pill-navy" />
           </div>
-          
           <div>
-            <h4 className="font-semibold text-pill-navy">{name}</h4>
-            <p className="text-sm text-pill-navy/70">{dosage}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {getStatusIcon()}
-              <span className="text-sm text-pill-navy/70">{time}</span>
-            </div>
+            <h3 className="font-semibold text-pill-navy text-lg">{medicine.name}</h3>
+            {medicine.dosage && (
+              <p className="text-pill-navy/70 text-sm">{medicine.dosage}</p>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex gap-1">
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(medicine)}
+              className="text-pill-navy hover:bg-pill-light"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(medicine.id)}
+              className="text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <Badge variant="outline" className="mb-2">
+            {medicine.frequency}
+          </Badge>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-pill-navy/80">
+            <Clock className="w-4 h-4" />
+            <span className="text-sm font-medium">Schedule:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {medicine.time_slots.map((timeSlot, index) => (
+              <Badge
+                key={index}
+                className="bg-pill-light text-pill-navy hover:bg-pill-light/80"
+              >
+                {formatTime(timeSlot)}
+              </Badge>
+            ))}
           </div>
         </div>
 
-        {status === 'pending' && (
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              onClick={handleTakeNow}
-              className="bg-pill-navy hover:bg-pill-navy/90 text-white"
-            >
-              Take Now
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={handleSkip}
-              className="border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white"
-            >
-              Skip
-            </Button>
-          </div>
-        )}
-
-        {status === 'taken' && (
-          <div className="text-sm text-green-600 font-medium">
-            ✓ Completed
-          </div>
-        )}
-
-        {status === 'missed' && (
-          <div className="text-sm text-pill-red font-medium">
-            ⚠ Missed
+        {medicine.notes && (
+          <div className="mt-3 p-3 bg-pill-light/30 rounded-lg">
+            <p className="text-sm text-pill-navy/80">
+              <span className="font-medium">Notes:</span> {medicine.notes}
+            </p>
           </div>
         )}
       </div>

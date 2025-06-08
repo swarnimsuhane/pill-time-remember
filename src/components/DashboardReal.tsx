@@ -2,13 +2,16 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle } from 'lucide-react';
+import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle, Pill } from 'lucide-react';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
 import HydrationTracker from '@/components/HydrationTracker';
 import SymptomChecker from '@/components/SymptomChecker';
+import AddMedicineModal from '@/components/AddMedicineModal';
+import MedicineCard from '@/components/MedicineCard';
 import { useHydration } from '@/hooks/useHydration';
 import { useSymptoms } from '@/hooks/useSymptoms';
+import { useMedicines } from '@/hooks/useMedicines';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -17,9 +20,11 @@ const DashboardReal = () => {
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [showHydrationTracker, setShowHydrationTracker] = useState(false);
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
+  const [showAddMedicineModal, setShowAddMedicineModal] = useState(false);
   
   const { logs: hydrationLogs, loading: hydrationLoading } = useHydration();
   const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
+  const { medicines, loading: medicinesLoading, deleteMedicine } = useMedicines();
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
@@ -61,7 +66,7 @@ const DashboardReal = () => {
     loading: { hydrationLoading, symptomsLoading }
   });
 
-  if (hydrationLoading || symptomsLoading) {
+  if (hydrationLoading || symptomsLoading || medicinesLoading) {
     return (
       <div className="animate-fade-in space-y-8">
         <div className="text-center py-12">
@@ -155,6 +160,15 @@ const DashboardReal = () => {
           </Button>
           
           <Button 
+            onClick={() => setShowAddMedicineModal(true)}
+            variant="outline" 
+            className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105`}
+          >
+            <Pill className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
+            <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>{isMobile ? 'Medicine' : 'Add Medicine'}</span>
+          </Button>
+          
+          <Button 
             onClick={() => setShowDoctorModal(true)}
             variant="outline" 
             className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-105`}
@@ -171,30 +185,38 @@ const DashboardReal = () => {
             <Droplets className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
             <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>Hydration</span>
           </Button>
-
-          <Button 
-            onClick={() => setShowSymptomChecker(true)}
-            variant="outline" 
-            className={`${isMobile ? 'h-16' : 'h-20'} flex flex-col gap-1 border-red-500 text-red-600 hover:bg-red-500 hover:text-white transition-all duration-200 hover:scale-105`}
-          >
-            <Activity className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-            <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>Symptoms</span>
-          </Button>
         </div>
       </Card>
 
-      {/* Health Overview */}
+      {/* Medicine Schedule */}
       <Card className={`${isMobile ? 'p-4' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
         <h3 className={`font-semibold text-pill-navy mb-4 font-montserrat ${isMobile ? 'text-lg' : 'text-2xl'}`}>
-          Health Overview
+          Medicine Schedule
         </h3>
-        <div className={`text-center ${isMobile ? 'py-6' : 'py-8'}`}>
-          <div className={`bg-pill-light rounded-full flex items-center justify-center mx-auto mb-4 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`}>
-            <Heart className={`text-pill-navy ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
+        {medicines.length === 0 ? (
+          <div className={`text-center ${isMobile ? 'py-6' : 'py-8'}`}>
+            <Pill className={`text-pill-navy/30 mx-auto mb-4 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`} />
+            <p className={`text-pill-navy/70 mb-2 ${isMobile ? 'text-sm' : 'text-lg'}`}>No medicines scheduled</p>
+            <p className={`text-pill-navy/50 mb-4 ${isMobile ? 'text-xs' : ''}`}>Add your first medicine to get started</p>
+            <Button 
+              onClick={() => setShowAddMedicineModal(true)}
+              className="bg-pill-navy hover:bg-pill-navy/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Medicine
+            </Button>
           </div>
-          <p className={`text-pill-navy/70 mb-2 ${isMobile ? 'text-sm' : 'text-lg'}`}>Welcome to Pill Time!</p>
-          <p className={`text-pill-navy/50 ${isMobile ? 'text-xs' : ''}`}>Your health management companion</p>
-        </div>
+        ) : (
+          <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+            {medicines.map((medicine) => (
+              <MedicineCard
+                key={medicine.id}
+                medicine={medicine}
+                onDelete={deleteMedicine}
+              />
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Health Logs Section */}
@@ -305,6 +327,10 @@ const DashboardReal = () => {
       <SymptomChecker 
         isOpen={showSymptomChecker} 
         onClose={() => setShowSymptomChecker(false)} 
+      />
+      <AddMedicineModal
+        isOpen={showAddMedicineModal}
+        onClose={() => setShowAddMedicineModal(false)}
       />
     </div>
   );

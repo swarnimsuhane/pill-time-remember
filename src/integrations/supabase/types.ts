@@ -37,15 +37,7 @@ export type Database = {
           speciality?: string | null
           users_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "doctors_users_id_fkey"
-            columns: ["users_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       "hydration logs": {
         Row: {

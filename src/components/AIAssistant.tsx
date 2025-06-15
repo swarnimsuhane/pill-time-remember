@@ -27,7 +27,7 @@ interface Message {
 const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(true); // Show sidebar by default
   const [editingTitle, setEditingTitle] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const { toast } = useToast();
@@ -300,12 +300,22 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => setShowSidebar(!showSidebar)}
+                className="text-pill-navy hover:bg-pill-light"
+                title="Toggle Chat History"
+              >
+                <History className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleNewChat}
                 className="text-pill-navy hover:bg-pill-light"
+                title="New Chat"
               >
                 <Plus className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={onClose}>
+              <Button variant="ghost" size="sm" onClick={onClose} title="Close">
                 <X className="w-4 h-4" />
               </Button>
             </div>

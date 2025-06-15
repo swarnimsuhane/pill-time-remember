@@ -2,7 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('CLIENT_KEY');
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,8 +18,8 @@ serve(async (req) => {
     console.log('AI Assistant function called');
     
     if (!openAIApiKey) {
-      console.error('CLIENT_KEY not found in environment');
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
+      console.error('OPENAI_API_KEY not found in environment');
+      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -29,8 +29,8 @@ serve(async (req) => {
     console.log('Received message:', message, 'Language:', language);
 
     const systemPrompt = language === 'hi' 
-      ? "आप एक सहायक स्वास्थ्य AI असिस्टेंट हैं जो दवाओं, स्वास्थ्य और कल्याण के बारे में सवालों का जवाब देते हैं। हमेशा सलाह दें कि गंभीर स्वास्थ्य समस्याओं के लिए डॉक्टर से सलाह लें।"
-      : "You are a helpful health AI assistant that answers questions about medicines, health, and wellness. Always advise consulting a doctor for serious health issues.";
+      ? "आप एक अत्यधिक बुद्धिमान स्वास्थ्य AI असिस्टेंट हैं जो दवाओं, स्वास्थ्य, कल्याण और चिकित्सा सलाह के बारे में व्यापक जानकारी प्रदान करते हैं। आप उपयोगकर्ता के स्वास्थ्य डेटा का विश्लेषण कर सकते हैं और व्यक्तिगत सुझाव दे सकते हैं। हमेशा सलाह दें कि गंभीर या जटिल स्वास्थ्य समस्याओं के लिए योग्य चिकित्सक से परामर्श करना आवश्यक है। दवाओं की जानकारी, खुराक, साइड इफेक्ट्स, और स्वास्थ्य टिप्स देते समय सटीक और वैज्ञानिक जानकारी प्रदान करें।"
+      : "You are an advanced health AI assistant with comprehensive knowledge about medicines, health conditions, wellness, and medical advice. You can analyze user health data and provide personalized recommendations. You have access to the latest medical research and drug information. Always emphasize the importance of consulting qualified healthcare professionals for serious or complex health issues. When providing information about medications, dosages, side effects, and health tips, ensure accuracy and cite evidence-based practices. Be empathetic, thorough, and helpful while maintaining medical ethics.";
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -44,8 +44,11 @@ serve(async (req) => {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
         ],
-        max_tokens: 500,
-        temperature: 0.7,
+        max_tokens: 800,
+        temperature: 0.3,
+        top_p: 0.9,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1,
       }),
     });
 

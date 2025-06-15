@@ -23,7 +23,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your medical AI assistant. I can help you with medication questions, health advice, and wellness tips. How can I assist you today?",
+      text: "Hello! I'm your advanced medical AI assistant powered by the latest AI technology. I can help you with:\n\n• Medication information and interactions\n• Health condition guidance\n• Wellness and lifestyle tips\n• Symptom analysis\n• Personalized health recommendations\n\nI have access to comprehensive medical knowledge and can provide detailed, evidence-based advice. How can I assist you with your health today?",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -73,7 +73,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
       
       const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+        text: "I apologize, but I'm experiencing connectivity issues right now. Please check if the OpenAI API key is properly configured and try again. You can also refresh the page and attempt your question again.",
         sender: 'ai',
         timestamp: new Date()
       };
@@ -100,7 +100,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-pill-navy">AI Health Assistant</h3>
-              <p className="text-sm text-pill-navy/70">Powered by OpenAI</p>
+              <p className="text-sm text-pill-navy/70">Advanced GPT-4o powered assistant</p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
@@ -163,7 +163,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about medicines, health, or wellness..."
+              placeholder="Ask me about medicines, symptoms, health conditions, or wellness advice..."
               className="flex-1"
               disabled={isTyping}
             />

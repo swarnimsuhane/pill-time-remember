@@ -173,45 +173,45 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-5xl h-[600px] max-h-[90vh] flex">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="w-full h-full max-w-6xl max-h-[95vh] sm:max-h-[90vh] flex flex-col sm:flex-row">
         {/* Chat History Sidebar - Always visible on desktop, toggleable on mobile */}
-        <Card className={`w-80 bg-white flex flex-col transition-all duration-300 ${
+        <Card className={`w-full sm:w-80 bg-white flex flex-col transition-all duration-300 ${
           showSidebar ? 'translate-x-0' : '-translate-x-full absolute z-10'
-        } lg:relative lg:translate-x-0 lg:block`}>
-          <div className="p-4 border-b">
+        } sm:relative sm:translate-x-0 sm:block ${showSidebar ? 'h-1/3 sm:h-full' : 'h-0 sm:h-full'}`}>
+          <div className="p-3 sm:p-4 border-b">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-pill-navy">Chat History</h3>
+              <h3 className="font-semibold text-pill-navy text-sm sm:text-base">Chat History</h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleNewChat}
-                className="text-pill-navy hover:bg-pill-light"
+                className="text-pill-navy hover:bg-pill-light p-1 sm:p-2"
                 title="New Chat"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
-            <p className="text-xs text-pill-navy/60">Manage your conversations</p>
+            <p className="text-xs text-pill-navy/60 hidden sm:block">Manage your conversations</p>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-1 sm:space-y-2">
             {loading ? (
               <div className="text-center py-4">
                 <div className="w-6 h-6 border-2 border-pill-navy border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
             ) : sessions.length === 0 ? (
-              <div className="text-center py-8">
-                <History className="w-12 h-12 text-pill-navy/30 mx-auto mb-2" />
-                <p className="text-pill-navy/70 text-sm">No chat history yet</p>
-                <p className="text-pill-navy/50 text-xs">Start a conversation to see your chats here</p>
+              <div className="text-center py-4 sm:py-8">
+                <History className="w-8 h-8 sm:w-12 sm:h-12 text-pill-navy/30 mx-auto mb-2" />
+                <p className="text-pill-navy/70 text-xs sm:text-sm">No chat history yet</p>
+                <p className="text-pill-navy/50 text-xs hidden sm:block">Start a conversation to see your chats here</p>
               </div>
             ) : (
               sessions.map((session) => (
                 <div
                   key={session.id}
                   onClick={() => handleLoadSession(session.id)}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors group ${
+                  className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-colors group ${
                     currentSessionId === session.id 
                       ? 'bg-pill-navy text-white' 
                       : 'bg-pill-light hover:bg-pill-teal/20'
@@ -224,13 +224,13 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
                         onChange={(e) => setNewTitle(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSaveTitle(session.id)}
                         onBlur={() => handleSaveTitle(session.id)}
-                        className="text-sm h-6 px-1"
+                        className="text-xs sm:text-sm h-5 sm:h-6 px-1"
                         autoFocus
                       />
                     ) : (
                       <>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm truncate">
+                          <h4 className="font-medium text-xs sm:text-sm truncate">
                             {session.title}
                           </h4>
                           <p className={`text-xs mt-1 ${
@@ -244,25 +244,25 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
                             variant="ghost"
                             size="sm"
                             onClick={(e) => handleEditTitle(session.id, session.title, e)}
-                            className={`w-6 h-6 p-0 ${
+                            className={`w-5 h-5 sm:w-6 sm:h-6 p-0 ${
                               currentSessionId === session.id 
                                 ? 'hover:bg-white/20 text-white' 
                                 : 'hover:bg-pill-teal/30 text-pill-navy'
                             }`}
                           >
-                            <Edit3 className="w-3 h-3" />
+                            <Edit3 className="w-2 h-2 sm:w-3 sm:h-3" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={(e) => handleDeleteSession(session.id, e)}
-                            className={`w-6 h-6 p-0 ${
+                            className={`w-5 h-5 sm:w-6 sm:h-6 p-0 ${
                               currentSessionId === session.id 
                                 ? 'hover:bg-white/20 text-white' 
                                 : 'hover:bg-red-100 text-red-600'
                             }`}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-2 h-2 sm:w-3 sm:h-3" />
                           </Button>
                         </div>
                       </>
@@ -275,117 +275,121 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
         </Card>
 
         {/* Main Chat Interface */}
-        <Card className="flex-1 bg-white flex flex-col">
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-3">
+        <Card className="flex-1 bg-white flex flex-col min-h-0">
+          <div className="flex items-center justify-between p-2 sm:p-4 border-b">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSidebar(!showSidebar)}
-                className="lg:hidden text-pill-navy"
+                className="sm:hidden text-pill-navy p-1"
               >
                 <History className="w-4 h-4" />
               </Button>
-              <div className="w-10 h-10 bg-pill-teal rounded-full flex items-center justify-center">
-                <Bot className="w-6 h-6 text-pill-navy" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-pill-teal rounded-full flex items-center justify-center flex-shrink-0">
+                <Bot className="w-4 h-4 sm:w-6 sm:h-6 text-pill-navy" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-pill-navy">Claude 4 Health Assistant</h3>
-                <p className="text-sm text-pill-navy/70">
-                  {currentSession ? currentSession.title : 'New Chat'} • Advanced medical AI with personalized insights
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-lg font-semibold text-pill-navy truncate">Claude 4 Health Assistant</h3>
+                <p className="text-xs sm:text-sm text-pill-navy/70 truncate">
+                  {currentSession ? currentSession.title : 'New Chat'} • Advanced medical AI
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSidebar(!showSidebar)}
-                className="text-pill-navy hover:bg-pill-light"
+                className="hidden sm:flex text-pill-navy hover:bg-pill-light p-1 sm:p-2"
                 title="Toggle Chat History"
               >
-                <History className="w-4 h-4" />
+                <History className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleNewChat}
-                className="text-pill-navy hover:bg-pill-light"
+                className="text-pill-navy hover:bg-pill-light p-1 sm:p-2"
                 title="New Chat"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={onClose} title="Close">
-                <X className="w-4 h-4" />
+              <Button variant="ghost" size="sm" onClick={onClose} title="Close" className="p-1 sm:p-2">
+                <X className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex items-start gap-3 ${
+                className={`flex items-start gap-2 sm:gap-3 ${
                   message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   message.sender === 'user' 
                     ? 'bg-pill-navy text-white' 
                     : 'bg-pill-teal text-pill-navy'
                 }`}>
                   {message.sender === 'user' ? (
-                    <User className="w-4 h-4" />
+                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
                   ) : (
-                    <Bot className="w-4 h-4" />
+                    <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
                   )}
                 </div>
-                <div className={`max-w-[70%] p-3 rounded-lg ${
+                <div className={`max-w-[75%] sm:max-w-[70%] p-2 sm:p-3 rounded-lg ${
                   message.sender === 'user'
                     ? 'bg-pill-navy text-white'
                     : 'bg-pill-light text-pill-navy'
                 }`}>
-                  <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                  <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.text}</p>
                   <p className={`text-xs mt-1 ${
                     message.sender === 'user' ? 'text-white/70' : 'text-pill-navy/50'
                   }`}>
-                    {message.timestamp.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                    {message.timestamp.toLocaleTimeString('en-IN', { 
+                      timeZone: 'Asia/Kolkata',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </p>
                 </div>
               </div>
             ))}
             {isTyping && (
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-pill-teal rounded-full flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-pill-navy" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-pill-teal rounded-full flex items-center justify-center">
+                  <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-pill-navy" />
                 </div>
-                <div className="bg-pill-light p-3 rounded-lg">
+                <div className="bg-pill-light p-2 sm:p-3 rounded-lg">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-pill-navy rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-pill-navy rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-pill-navy rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pill-navy rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pill-navy rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pill-navy rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="p-4 border-t">
+          <div className="p-2 sm:p-4 border-t">
             <div className="flex gap-2">
               <Input
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me about your health, medications, symptoms, or get personalized advice..."
-                className="flex-1"
+                placeholder="Ask about your health..."
+                className="flex-1 text-sm sm:text-base"
                 disabled={isTyping}
               />
               <Button 
                 onClick={handleSendMessage}
-                className="bg-pill-navy hover:bg-pill-navy/90"
+                className="bg-pill-navy hover:bg-pill-navy/90 px-3 sm:px-4"
                 disabled={!inputMessage.trim() || isTyping}
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>

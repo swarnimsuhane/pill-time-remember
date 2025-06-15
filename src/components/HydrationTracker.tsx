@@ -28,24 +28,24 @@ const HydrationTracker = ({ isOpen, onClose }: HydrationTrackerProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-md bg-white">
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <Droplets className="w-6 h-6 text-blue-600" />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <Card className="w-full max-w-md bg-white mx-2 sm:mx-0">
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Droplets className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-pill-navy">Hydration Tracker</h3>
-              <p className="text-sm text-pill-navy/70">Track your daily water intake</p>
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold text-pill-navy truncate">Hydration Tracker</h3>
+              <p className="text-xs sm:text-sm text-pill-navy/70 hidden sm:block">Track your daily water intake</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={onClose} className="flex-shrink-0">
             <X className="w-4 h-4" />
           </Button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
           {/* Progress */}
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">{todaysTotal.toFixed(1)}L</div>

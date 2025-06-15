@@ -111,7 +111,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-pill-navy">
             {editMedicine ? 'Edit Medicine Schedule' : 'Add Medicine Schedule'}
@@ -158,12 +158,13 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
 
           <div className="space-y-2">
             <Label>Time Slots *</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 type="time"
                 value={newTimeSlot}
                 onChange={(e) => setNewTimeSlot(e.target.value)}
                 placeholder="Select time"
+                className="flex-1"
               />
               <Button
                 type="button"
@@ -171,8 +172,10 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
                 variant="outline"
                 size="sm"
                 disabled={!newTimeSlot}
+                className="w-full sm:w-auto"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 mr-2 sm:mr-0" />
+                <span className="sm:hidden">Add Time</span>
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
@@ -208,19 +211,19 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="flex-1"
+              className="flex-1 order-2 sm:order-1"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name || !frequency || timeSlots.length === 0 || isSubmitting}
-              className="flex-1 bg-pill-navy hover:bg-pill-navy/90"
+              className="flex-1 bg-pill-navy hover:bg-pill-navy/90 order-1 sm:order-2"
             >
               {isSubmitting ? (editMedicine ? 'Updating...' : 'Adding...') : (editMedicine ? 'Update Medicine' : 'Add Medicine')}
             </Button>

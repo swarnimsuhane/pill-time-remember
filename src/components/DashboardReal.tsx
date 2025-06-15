@@ -13,6 +13,7 @@ import { useHydration } from '@/hooks/useHydration';
 import { useSymptoms } from '@/hooks/useSymptoms';
 import { useMedicines } from '@/hooks/useMedicines';
 import { useDoctors } from '@/hooks/useDoctors';
+import { useHealthScore } from '@/hooks/useHealthScore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -28,6 +29,7 @@ const DashboardReal = () => {
   const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
   const { medicines, loading: medicinesLoading, deleteMedicine } = useMedicines();
   const { doctors, loading: doctorsLoading } = useDoctors();
+  const healthScore = useHealthScore();
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
@@ -144,7 +146,9 @@ const DashboardReal = () => {
             </div>
             <div>
               <h3 className={`font-semibold text-pill-navy ${isMobile ? 'text-xs' : ''}`}>Health Score</h3>
-              <p className={`text-pill-navy/70 ${isMobile ? 'text-xs' : 'text-sm'}`}>Good</p>
+              <p className={`${healthScore.color} font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                {healthScore.rating} ({healthScore.score}/100)
+              </p>
             </div>
           </div>
         </Card>

@@ -175,20 +175,24 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="w-full max-w-5xl h-[600px] max-h-[90vh] flex">
-        {/* Chat History Sidebar */}
-        <Card className={`w-80 bg-white flex flex-col transition-all duration-300 ${showSidebar ? 'translate-x-0' : '-translate-x-full absolute'} lg:relative lg:translate-x-0`}>
+        {/* Chat History Sidebar - Always visible on desktop, toggleable on mobile */}
+        <Card className={`w-80 bg-white flex flex-col transition-all duration-300 ${
+          showSidebar ? 'translate-x-0' : '-translate-x-full absolute z-10'
+        } lg:relative lg:translate-x-0 lg:block`}>
           <div className="p-4 border-b">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold text-pill-navy">Chat History</h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleNewChat}
                 className="text-pill-navy hover:bg-pill-light"
+                title="New Chat"
               >
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
+            <p className="text-xs text-pill-navy/60">Manage your conversations</p>
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-2">

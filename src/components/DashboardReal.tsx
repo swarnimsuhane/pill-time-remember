@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle, Pill } from 'lucide-react';
+import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle, Pill, Stethoscope, Phone, User } from 'lucide-react';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
 import HydrationTracker from '@/components/HydrationTracker';
@@ -12,6 +12,7 @@ import MedicineCard from '@/components/MedicineCard';
 import { useHydration } from '@/hooks/useHydration';
 import { useSymptoms } from '@/hooks/useSymptoms';
 import { useMedicines } from '@/hooks/useMedicines';
+import { useDoctors } from '@/hooks/useDoctors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -26,6 +27,7 @@ const DashboardReal = () => {
   const { logs: hydrationLogs, loading: hydrationLoading } = useHydration();
   const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
   const { medicines, loading: medicinesLoading, deleteMedicine } = useMedicines();
+  const { doctors, loading: doctorsLoading } = useDoctors();
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
@@ -67,7 +69,7 @@ const DashboardReal = () => {
     loading: { hydrationLoading, symptomsLoading }
   });
 
-  if (hydrationLoading || symptomsLoading || medicinesLoading) {
+  if (hydrationLoading || symptomsLoading || medicinesLoading || doctorsLoading) {
     return (
       <div className="animate-fade-in space-y-8">
         <div className="text-center py-12">
@@ -219,6 +221,69 @@ const DashboardReal = () => {
                 }}
                 onDelete={deleteMedicine}
               />
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* Doctors Section */}
+      <Card className={`${isMobile ? 'p-4' : 'p-6'} bg-white/90 backdrop-blur-sm pill-shadow`}>
+        <div className={`flex items-center justify-between mb-4 ${isMobile ? 'flex-col gap-2' : ''}`}>
+          <h3 className={`font-semibold text-pill-navy flex items-center gap-2 font-montserrat ${isMobile ? 'text-lg' : 'text-2xl'}`}>
+            <Stethoscope className={`text-pill-navy ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
+            Your Doctors
+          </h3>
+          <Button 
+            onClick={() => setShowDoctorModal(true)}
+            size="sm"
+            className="bg-pill-navy hover:bg-pill-navy/90"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            {isMobile ? 'Add' : 'Add Doctor'}
+          </Button>
+        </div>
+        
+        {doctors.length === 0 ? (
+          <div className={`text-center ${isMobile ? 'py-6' : 'py-8'}`}>
+            <User className={`text-pill-navy/30 mx-auto mb-4 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`} />
+            <p className={`text-pill-navy/70 mb-2 ${isMobile ? 'text-sm' : 'text-lg'}`}>No doctors added</p>
+            <p className={`text-pill-navy/50 mb-4 ${isMobile ? 'text-xs' : ''}`}>Add your healthcare providers to track appointments</p>
+            <Button 
+              onClick={() => setShowDoctorModal(true)}
+              className="bg-pill-navy hover:bg-pill-navy/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Doctor
+            </Button>
+          </div>
+        ) : (
+          <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+            {doctors.map((doctor) => (
+              <div key={doctor.id} className={`bg-pill-light/30 rounded-lg border border-pill-navy/10 ${isMobile ? 'p-3' : 'p-4'}`}>
+                <div className={`flex items-start ${isMobile ? 'gap-2' : 'gap-3'}`}>
+                  <div className={`bg-pill-teal rounded-full flex items-center justify-center flex-shrink-0 ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}>
+                    <Stethoscope className={`text-pill-navy ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-semibold text-pill-navy mb-1 ${isMobile ? 'text-sm' : ''}`}>{doctor.name}</h4>
+                    <p className={`text-pill-navy/70 mb-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>{doctor.speciality}</p>
+                    
+                    {doctor.contact && (
+                      <div className={`flex items-center gap-1 text-pill-navy/60 mb-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                        <Phone className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                        <span>{doctor.contact}</span>
+                      </div>
+                    )}
+                    
+                    {doctor.appointment_date && (
+                      <div className={`flex items-center gap-1 text-pill-navy/60 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                        <Calendar className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                        <span>Next: {new Date(doctor.appointment_date).toLocaleDateString('en-IN')}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}

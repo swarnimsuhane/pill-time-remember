@@ -21,6 +21,7 @@ const DashboardReal = () => {
   const [showHydrationTracker, setShowHydrationTracker] = useState(false);
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   const [showAddMedicineModal, setShowAddMedicineModal] = useState(false);
+  const [editingMedicine, setEditingMedicine] = useState<any>(null);
   
   const { logs: hydrationLogs, loading: hydrationLoading } = useHydration();
   const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
@@ -212,6 +213,10 @@ const DashboardReal = () => {
               <MedicineCard
                 key={medicine.id}
                 medicine={medicine}
+                onEdit={(medicine) => {
+                  setEditingMedicine(medicine);
+                  setShowAddMedicineModal(true);
+                }}
                 onDelete={deleteMedicine}
               />
             ))}
@@ -330,7 +335,11 @@ const DashboardReal = () => {
       />
       <AddMedicineModal
         isOpen={showAddMedicineModal}
-        onClose={() => setShowAddMedicineModal(false)}
+        onClose={() => {
+          setShowAddMedicineModal(false);
+          setEditingMedicine(null);
+        }}
+        editMedicine={editingMedicine}
       />
     </div>
   );

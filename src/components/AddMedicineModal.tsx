@@ -7,14 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus } from 'lucide-react';
-import { useMedicines } from '@/hooks/useMedicines';
+import { useMedicines, Medicine } from '@/hooks/useMedicines';
 
 interface AddMedicineModalProps {
   isOpen: boolean;
   onClose: () => void;
+  editMedicine?: Medicine | null;
 }
 
-const AddMedicineModal = ({ isOpen, onClose }: AddMedicineModalProps) => {
+const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalProps) => {
   const [name, setName] = useState('');
   const [dosage, setDosage] = useState('');
   const [frequency, setFrequency] = useState('');
@@ -23,7 +24,18 @@ const AddMedicineModal = ({ isOpen, onClose }: AddMedicineModalProps) => {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { addMedicine } = useMedicines();
+  const { addMedicine, updateMedicine } = useMedicines();
+
+  // Populate form when editing
+  React.useEffect(() => {
+    if (editMedicine) {
+      setName(editMedicine.name);
+      setDosage(editMedicine.dosage || '');
+      setFrequency(editMedicine.frequency);
+      setTimeSlots(editMedicine.time_slots);
+      setNotes(editMedicine.notes || '');
+    }
+  }, [editMedicine]);
 
   const frequencyOptions = [
     'Once daily',
@@ -55,14 +67,26 @@ const AddMedicineModal = ({ isOpen, onClose }: AddMedicineModalProps) => {
     if (!name || !frequency || timeSlots.length === 0) return;
 
     setIsSubmitting(true);
-    const success = await addMedicine({
-      name,
-      dosage: dosage || undefined,
-      frequency,
-      time_slots: timeSlots,
-      notes: notes || undefined,
-      is_active: true
-    });
+    let success;
+    
+    if (editMedicine) {
+      success = await updateMedicine(editMedicine.id, {
+        name,
+        dosage: dosage || undefined,
+        frequency,
+        time_slots: timeSlots,
+        notes: notes || undefined,
+      });
+    } else {
+      success = await addMedicine({
+        name,
+        dosage: dosage || undefined,
+        frequency,
+        time_slots: timeSlots,
+        notes: notes || undefined,
+        is_active: true
+      });
+    }
 
     if (success) {
       setName('');
@@ -90,7 +114,7 @@ const AddMedicineModal = ({ isOpen, onClose }: AddMedicineModalProps) => {
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-pill-navy">
-            Add Medicine Schedule
+            {editMedicine ? 'Edit Medicine Schedule' : 'Add Medicine Schedule'}
           </DialogTitle>
         </DialogHeader>
 
@@ -198,7 +222,7 @@ const AddMedicineModal = ({ isOpen, onClose }: AddMedicineModalProps) => {
               disabled={!name || !frequency || timeSlots.length === 0 || isSubmitting}
               className="flex-1 bg-pill-navy hover:bg-pill-navy/90"
             >
-              {isSubmitting ? 'Adding...' : 'Add Medicine'}
+              {isSubmitting ? (editMedicine ? 'Updating...' : 'Adding...') : (editMedicine ? 'Update Medicine' : 'Add Medicine')}
             </Button>
           </div>
         </form>

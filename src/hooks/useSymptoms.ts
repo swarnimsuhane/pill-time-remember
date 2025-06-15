@@ -110,6 +110,30 @@ export const useSymptoms = () => {
 
   useEffect(() => {
     fetchLogs();
+
+    if (!user) return;
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('symptoms-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'symptoms logs',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Real-time symptoms change:', payload);
+          fetchLogs(); // Refetch data when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   return {

@@ -141,6 +141,30 @@ export const useMedicines = () => {
 
   useEffect(() => {
     fetchMedicines();
+
+    if (!user) return;
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('medicines-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'medicines',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Real-time medicines change:', payload);
+          fetchMedicines(); // Refetch data when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   return {

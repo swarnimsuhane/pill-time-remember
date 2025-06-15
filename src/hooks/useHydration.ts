@@ -114,6 +114,30 @@ export const useHydration = () => {
 
   useEffect(() => {
     fetchLogs();
+
+    if (!user) return;
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('hydration-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'hydration logs',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Real-time hydration change:', payload);
+          fetchLogs(); // Refetch data when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   return {

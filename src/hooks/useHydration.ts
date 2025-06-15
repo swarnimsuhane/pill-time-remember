@@ -63,7 +63,7 @@ export const useHydration = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('date', logDate)
-        .single();
+        .maybeSingle();
 
       if (existing) {
         // Update existing log

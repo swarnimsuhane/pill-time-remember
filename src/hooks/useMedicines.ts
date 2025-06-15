@@ -23,9 +23,13 @@ export const useMedicines = () => {
   const { toast } = useToast();
 
   const fetchMedicines = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     try {
+      console.log('Fetching medicines for user:', user.id);
       const { data, error } = await supabase
         .from('medicines')
         .select('*')
@@ -33,7 +37,12 @@ export const useMedicines = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching medicines:', error);
+        throw error;
+      }
+      
+      console.log('Fetched medicines:', data);
       setMedicines(data || []);
     } catch (error) {
       console.error('Error fetching medicines:', error);

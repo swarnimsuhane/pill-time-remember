@@ -2,13 +2,15 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle, Pill, Stethoscope, Phone, User } from 'lucide-react';
+import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { Heart, Calendar, MessageCircle, Plus, Clock, Droplets, Activity, TrendingUp, AlertCircle, Pill, Stethoscope, Phone, User, Menu, Bell, Settings } from 'lucide-react';
 import AIAssistant from '@/components/AIAssistant';
 import DoctorModal from '@/components/DoctorModal';
 import HydrationTracker from '@/components/HydrationTracker';
 import SymptomChecker from '@/components/SymptomChecker';
 import AddMedicineModal from '@/components/AddMedicineModal';
 import MedicineCard from '@/components/MedicineCard';
+import AppSidebar from '@/components/AppSidebar';
 import { useHydration } from '@/hooks/useHydration';
 import { useSymptoms } from '@/hooks/useSymptoms';
 import { useMedicines } from '@/hooks/useMedicines';
@@ -24,6 +26,7 @@ const DashboardReal = () => {
   const [showSymptomChecker, setShowSymptomChecker] = useState(false);
   const [showAddMedicineModal, setShowAddMedicineModal] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState<any>(null);
+  const [currentFeature, setCurrentFeature] = useState('dashboard');
   
   const { logs: hydrationLogs, loading: hydrationLoading } = useHydration();
   const { logs: symptomLogs, loading: symptomsLoading } = useSymptoms();
@@ -82,8 +85,63 @@ const DashboardReal = () => {
     );
   }
 
+  const handleFeatureSelect = (feature: string) => {
+    setCurrentFeature(feature);
+    
+    // Handle feature navigation
+    switch (feature) {
+      case 'ai-assistant':
+        setShowAIAssistant(true);
+        break;
+      case 'medicines':
+        setShowAddMedicineModal(true);
+        break;
+      case 'doctors':
+        setShowDoctorModal(true);
+        break;
+      case 'hydration':
+        setShowHydrationTracker(true);
+        break;
+      case 'symptoms':
+        setShowSymptomChecker(true);
+        break;
+      case 'notifications':
+        // TODO: Implement notifications
+        break;
+      case 'health-score':
+        // TODO: Show detailed health score
+        break;
+      case 'appointments':
+        // TODO: Show appointments view
+        break;
+      case 'profile':
+        // TODO: Show profile modal
+        break;
+      case 'settings':
+        // TODO: Show settings modal
+        break;
+      default:
+        // Dashboard is the default view
+        break;
+    }
+  };
+
   return (
-    <div className={`animate-fade-in ${isMobile ? 'space-y-4 px-2' : 'space-y-8'}`}>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar 
+          onFeatureSelect={handleFeatureSelect}
+          currentFeature={currentFeature}
+        />
+        <SidebarInset className="flex-1">
+          <div className="flex items-center gap-2 p-4 border-b border-pill-navy/10">
+            <SidebarTrigger className="lg:hidden" />
+            <h1 className="font-semibold text-pill-navy">
+              {currentFeature === 'dashboard' ? 'Health Dashboard' : 
+               currentFeature.charAt(0).toUpperCase() + currentFeature.slice(1).replace('-', ' ')}
+            </h1>
+          </div>
+          <div className={`animate-fade-in ${isMobile ? 'space-y-4 px-2 py-4' : 'space-y-8 p-8'}`}>
       {/* Welcome Section */}
       <Card className={`${isMobile ? 'p-4' : 'p-8'} bg-gradient-to-r from-white to-pill-light/50 backdrop-blur-sm pill-shadow`}>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
@@ -410,7 +468,10 @@ const DashboardReal = () => {
         }}
         editMedicine={editingMedicine}
       />
-    </div>
+          </div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 

@@ -134,12 +134,32 @@ const DashboardReal = () => {
           currentFeature={currentFeature}
         />
         <SidebarInset className="flex-1">
-          <div className="flex items-center gap-2 p-4 border-b border-pill-navy/10">
-            <SidebarTrigger className="lg:hidden" />
-            <h1 className="font-semibold text-pill-navy">
-              {currentFeature === 'dashboard' ? 'Health Dashboard' : 
-               currentFeature.charAt(0).toUpperCase() + currentFeature.slice(1).replace('-', ' ')}
-            </h1>
+          <div className="flex items-center justify-between p-4 border-b border-pill-navy/10 bg-white/50 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="h-8 w-8 bg-pill-navy hover:bg-pill-navy/90 text-white rounded-md transition-colors duration-200" />
+              <h1 className="font-semibold text-pill-navy text-lg">
+                {currentFeature === 'dashboard' ? 'Health Dashboard' : 
+                 currentFeature.charAt(0).toUpperCase() + currentFeature.slice(1).replace('-', ' ')}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-pill-navy/20 text-pill-navy hover:bg-pill-navy hover:text-white"
+              >
+                <Bell className="w-4 h-4" />
+                {!isMobile && <span className="ml-1">Notifications</span>}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-pill-navy/20 text-pill-navy hover:bg-pill-navy hover:text-white"
+              >
+                <Settings className="w-4 h-4" />
+                {!isMobile && <span className="ml-1">Settings</span>}
+              </Button>
+            </div>
           </div>
           <div className={`animate-fade-in ${isMobile ? 'space-y-4 px-2 py-4' : 'space-y-8 p-8'}`}>
       {/* Welcome Section */}

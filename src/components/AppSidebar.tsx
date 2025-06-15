@@ -60,14 +60,14 @@ const AppSidebar = ({ onFeatureSelect, currentFeature }: AppSidebarProps) => {
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4 border-b border-pill-navy/10">
+      <SidebarHeader className="p-4 border-b border-pill-navy/10 bg-gradient-to-r from-pill-teal/20 to-pill-light/30">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-pill-teal rounded-full flex items-center justify-center">
-            <Heart className="w-4 h-4 text-pill-navy" />
+          <div className="w-10 h-10 bg-pill-teal rounded-full flex items-center justify-center shadow-lg">
+            <Heart className="w-5 h-5 text-pill-navy animate-pulse" />
           </div>
           <div>
-            <h2 className="font-bold text-pill-navy text-lg">Pill Time</h2>
-            <p className="text-pill-navy/70 text-sm">Health Companion</p>
+            <h2 className="font-bold text-pill-navy text-xl font-montserrat">Pill Time</h2>
+            <p className="text-pill-navy/70 text-sm font-medium">Health Companion</p>
           </div>
         </div>
       </SidebarHeader>
@@ -81,7 +81,7 @@ const AppSidebar = ({ onFeatureSelect, currentFeature }: AppSidebarProps) => {
                   <SidebarMenuButton 
                     onClick={() => handleFeatureClick(item.id)}
                     isActive={currentFeature === item.id}
-                    className="w-full justify-start gap-3 py-3 px-3 rounded-lg transition-all duration-200 hover:bg-pill-navy/10 data-[active=true]:bg-pill-navy data-[active=true]:text-white"
+                     className="w-full justify-start gap-3 py-3 px-3 rounded-lg transition-all duration-200 hover:bg-pill-navy/10 hover:scale-[1.02] data-[active=true]:bg-pill-navy data-[active=true]:text-white data-[active=true]:shadow-lg"
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="font-medium">{item.title}</span>
@@ -102,7 +102,7 @@ const AppSidebar = ({ onFeatureSelect, currentFeature }: AppSidebarProps) => {
                   <SidebarMenuButton 
                     onClick={() => handleFeatureClick(item.id)}
                     isActive={currentFeature === item.id}
-                    className="w-full justify-start gap-3 py-3 px-3 rounded-lg transition-all duration-200 hover:bg-pill-navy/10 data-[active=true]:bg-pill-navy data-[active=true]:text-white"
+                    className="w-full justify-start gap-3 py-3 px-3 rounded-lg transition-all duration-200 hover:bg-pill-navy/10 hover:scale-[1.02] data-[active=true]:bg-pill-navy data-[active=true]:text-white data-[active=true]:shadow-lg"
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="font-medium">{item.title}</span>
@@ -114,17 +114,17 @@ const AppSidebar = ({ onFeatureSelect, currentFeature }: AppSidebarProps) => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-pill-navy/10">
+      <SidebarFooter className="p-4 border-t border-pill-navy/10 bg-gradient-to-r from-pill-light/20 to-white/50">
         {user && (
           <div className="space-y-3">
-            <div className="text-center">
-              <p className="text-sm font-medium text-pill-navy">{user.email}</p>
+            <div className="text-center bg-white/50 rounded-lg p-3 backdrop-blur-sm">
+              <p className="text-sm font-medium text-pill-navy truncate">{user.email}</p>
               <p className="text-xs text-pill-navy/70">Logged in</p>
             </div>
             <Button 
               onClick={signOut}
               variant="outline"
-              className="w-full border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white"
+              className="w-full border-pill-navy text-pill-navy hover:bg-pill-navy hover:text-white transition-all duration-200 hover:scale-[1.02] shadow-sm"
             >
               Sign Out
             </Button>

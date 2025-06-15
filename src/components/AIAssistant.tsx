@@ -6,6 +6,11 @@ import { Input } from '@/components/ui/input';
 import { X, Send, Bot, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useHydration } from '@/hooks/useHydration';
+import { useSymptoms } from '@/hooks/useSymptoms';
+import { useMedicines } from '@/hooks/useMedicines';
+import { useDoctors } from '@/hooks/useDoctors';
+import { useHealthScore } from '@/hooks/useHealthScore';
 
 interface AIAssistantProps {
   isOpen: boolean;
@@ -23,7 +28,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your advanced medical AI assistant powered by the latest AI technology. I can help you with:\n\n• Medication information and interactions\n• Health condition guidance\n• Wellness and lifestyle tips\n• Symptom analysis\n• Personalized health recommendations\n\nI have access to comprehensive medical knowledge and can provide detailed, evidence-based advice. How can I assist you with your health today?",
+      text: "Hello! I'm Claude 4, your advanced AI health assistant with superior medical reasoning capabilities. I can help you with:\n\n🔹 **Medication Analysis** - Drug interactions, dosages, side effects\n🔹 **Health Assessment** - Symptom analysis and condition guidance  \n🔹 **Personalized Advice** - Based on your health data and history\n🔹 **Wellness Planning** - Lifestyle, nutrition, and preventive care\n🔹 **Mental Health** - Emotional support and coping strategies\n\nI'll analyze your current health data to provide personalized recommendations. What would you like to discuss about your health today?",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -31,6 +36,13 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
+  
+  // Get user health data for personalized responses
+  const { logs: hydrationLogs } = useHydration();
+  const { logs: symptomLogs } = useSymptoms();
+  const { medicines } = useMedicines();
+  const { doctors } = useDoctors();
+  const healthScore = useHealthScore();
 
   if (!isOpen) return null;
 
@@ -50,8 +62,21 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
     setIsTyping(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: { message: currentMessage, language: 'en' }
+      // Prepare user health data for personalized responses
+      const userHealthData = {
+        hydration: hydrationLogs.length > 0 ? `${hydrationLogs[0]?.liters || 0}L today` : 'No recent data',
+        symptoms: symptomLogs.length > 0 ? symptomLogs.slice(0, 3).map(s => s.symptoms).join('; ') : 'None logged recently',
+        medications: medicines.length > 0 ? medicines.filter(m => m.is_active).map(m => `${m.name} (${m.frequency})`).join(', ') : 'None listed',
+        healthScore: `${healthScore.rating} (${healthScore.score}/100)`,
+        doctors: doctors.length > 0 ? doctors.map(d => `${d.name} - ${d.speciality}`).join(', ') : 'None added'
+      };
+
+      const { data, error } = await supabase.functions.invoke('ai-health-claude', {
+        body: { 
+          message: currentMessage, 
+          userHealthData,
+          language: 'en' 
+        }
       });
 
       if (error) throw error;
@@ -73,7 +98,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
       
       const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I apologize, but I'm experiencing connectivity issues right now. Please check if the OpenAI API key is properly configured and try again. You can also refresh the page and attempt your question again.",
+        text: "I apologize, but I'm experiencing connectivity issues. This could be due to:\n\n• Anthropic API key not configured\n• Network connectivity issues\n• Service temporarily unavailable\n\nPlease ensure the Claude API key is properly set up and try again.",
         sender: 'ai',
         timestamp: new Date()
       };
@@ -99,8 +124,8 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
               <Bot className="w-6 h-6 text-pill-navy" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-pill-navy">AI Health Assistant</h3>
-              <p className="text-sm text-pill-navy/70">Advanced GPT-4o powered assistant</p>
+              <h3 className="text-lg font-semibold text-pill-navy">Claude 4 Health Assistant</h3>
+              <p className="text-sm text-pill-navy/70">Advanced medical AI with personalized insights</p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
@@ -163,7 +188,7 @@ const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about medicines, symptoms, health conditions, or wellness advice..."
+              placeholder="Ask me about your health, medications, symptoms, or get personalized advice..."
               className="flex-1"
               disabled={isTyping}
             />

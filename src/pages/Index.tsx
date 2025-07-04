@@ -62,6 +62,14 @@ const Index = () => {
     setShowProfileModal(true);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pill-light to-pill-teal">
       <Header 
@@ -80,7 +88,7 @@ const Index = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-pill-navy font-montserrat">Your Profile</h2>
                   <Button
-                    onClick={signOut}
+                    onClick={handleSignOut}
                     variant="outline"
                     size="sm"
                     className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white self-start"
@@ -133,11 +141,11 @@ const Index = () => {
 
           {currentView === 'settings' && (
             <div className="animate-fade-in">
-              <Card className="p-8 bg-white/90 backdrop-blur-sm pill-shadow">
-                <h2 className="text-3xl font-bold text-pill-navy mb-6 font-montserrat">Settings</h2>
-                <div className="grid gap-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Card className="p-6 hover:scale-105 transition-transform duration-200">
+              <Card className="p-4 sm:p-6 lg:p-8 bg-white/90 backdrop-blur-sm pill-shadow">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-pill-navy mb-4 sm:mb-6 font-montserrat">Settings</h2>
+                <div className="grid gap-4 sm:gap-6">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Card className="p-4 sm:p-6 hover:scale-105 transition-transform duration-200">
                       <h3 className="font-semibold text-pill-navy mb-2 flex items-center gap-2">
                         Notifications
                       </h3>
@@ -151,7 +159,7 @@ const Index = () => {
                       </Button>
                     </Card>
                     
-                    <Card className="p-6 hover:scale-105 transition-transform duration-200">
+                    <Card className="p-4 sm:p-6 hover:scale-105 transition-transform duration-200">
                       <h3 className="font-semibold text-pill-navy mb-2 flex items-center gap-2">
                         Timezone
                       </h3>

@@ -31,7 +31,6 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
 
   // Populate form when editing
   React.useEffect(() => {
-    console.log('Modal opened/closed. isOpen:', isOpen, 'editMedicine:', editMedicine);
     if (editMedicine) {
       setName(editMedicine.name);
       setDosage(editMedicine.dosage || '');
@@ -63,64 +62,29 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   ];
 
   const addTimeSlot = () => {
-    console.log('Adding time slot:', newTimeSlot);
-    console.log('Current time slots:', timeSlots);
-    
     if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
-      const updatedTimeSlots = [...timeSlots, newTimeSlot];
-      setTimeSlots(updatedTimeSlots);
+      setTimeSlots(prev => [...prev, newTimeSlot]);
       setNewTimeSlot('');
-      console.log('Updated time slots:', updatedTimeSlots);
-    } else {
-      console.log('Time slot not added - either empty or already exists');
     }
   };
 
   const removeTimeSlot = (timeSlot: string) => {
-    console.log('Removing time slot:', timeSlot);
-    const updatedTimeSlots = timeSlots.filter(slot => slot !== timeSlot);
-    setTimeSlots(updatedTimeSlots);
-    console.log('Time slots after removal:', updatedTimeSlots);
+    setTimeSlots(prev => prev.filter(slot => slot !== timeSlot));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('=== FORM SUBMISSION START ===');
-    console.log('Event prevented default:', e.defaultPrevented);
-    console.log('User:', user?.id);
-    console.log('User object:', user);
-    console.log('Form data:', { 
-      name: name.trim(), 
-      dosage: dosage.trim(), 
-      frequency, 
-      timeSlots: timeSlots.length,
-      timeSlotsList: timeSlots,
-      notes: notes.trim()
-    });
-    
-    // Validation checks with detailed logging
     if (!user) {
-      console.error('❌ VALIDATION FAILED: No user found during form submission');
+      console.error('No user found during form submission');
       return;
     }
     
-    if (!name.trim()) {
-      console.error('❌ VALIDATION FAILED: Medicine name is required');
-      return;
-    }
-    
-    if (!frequency) {
-      console.error('❌ VALIDATION FAILED: Frequency is required');
-      return;
-    }
-    
-    if (timeSlots.length === 0) {
-      console.error('❌ VALIDATION FAILED: At least one time slot is required');
+    if (!name.trim() || !frequency || timeSlots.length === 0) {
+      console.error('Validation failed: missing required fields');
       return;
     }
 
-    console.log('✅ All validations passed, proceeding with submission');
     setIsSubmitting(true);
     
     try {
@@ -133,36 +97,25 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
         is_active: true
       };
       
-      console.log('📤 Submitting medicine data:', medicineData);
-      
       let success;
       if (editMedicine) {
-        console.log('📝 Updating existing medicine:', editMedicine.id);
         success = await updateMedicine(editMedicine.id, medicineData);
       } else {
-        console.log('➕ Adding new medicine');
         success = await addMedicine(medicineData);
       }
 
-      console.log('📋 Operation result:', success);
-      
       if (success) {
-        console.log('✅ Medicine operation successful, closing modal');
         resetForm();
         onClose();
-      } else {
-        console.error('❌ Medicine operation failed');
       }
     } catch (error) {
-      console.error('💥 Error in handleSubmit:', error);
+      console.error('Error in handleSubmit:', error);
     } finally {
       setIsSubmitting(false);
-      console.log('=== FORM SUBMISSION END ===');
     }
   };
 
   const resetForm = () => {
-    console.log('🔄 Resetting form');
     setName('');
     setDosage('');
     setFrequency('');
@@ -172,28 +125,13 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   };
 
   const handleClose = () => {
-    console.log('🚪 Modal closing');
     resetForm();
     onClose();
   };
 
-  // Enhanced validation check
-  const canSubmit = () => {
-    const validation = {
-      hasName: name.trim().length > 0,
-      hasFrequency: frequency.length > 0,
-      hasTimeSlots: timeSlots.length > 0,
-      hasUser: !!user,
-      isNotSubmitting: !isSubmitting
-    };
-    
-    console.log('🔍 Form validation check:', validation);
-    
-    return validation.hasName && validation.hasFrequency && validation.hasTimeSlots && validation.hasUser && validation.isNotSubmitting;
+  const isFormValid = () => {
+    return name.trim().length > 0 && frequency.length > 0 && timeSlots.length > 0 && !!user && !isSubmitting;
   };
-
-  const submitButtonEnabled = canSubmit();
-  console.log('🔘 Submit button enabled:', submitButtonEnabled);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -216,10 +154,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             <Input
               id="name"
               value={name}
-              onChange={(e) => {
-                console.log('Name changed:', e.target.value);
-                setName(e.target.value);
-              }}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Enter medicine name"
               required
             />
@@ -230,20 +165,14 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             <Input
               id="dosage"
               value={dosage}
-              onChange={(e) => {
-                console.log('Dosage changed:', e.target.value);
-                setDosage(e.target.value);
-              }}
+              onChange={(e) => setDosage(e.target.value)}
               placeholder="e.g., 1 tablet, 5ml, 500mg"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="frequency">Frequency *</Label>
-            <Select value={frequency} onValueChange={(value) => {
-              console.log('Frequency changed:', value);
-              setFrequency(value);
-            }} required>
+            <Select value={frequency} onValueChange={setFrequency} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select frequency" />
               </SelectTrigger>
@@ -263,10 +192,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
               <Input
                 type="time"
                 value={newTimeSlot}
-                onChange={(e) => {
-                  console.log('New time slot changed:', e.target.value);
-                  setNewTimeSlot(e.target.value);
-                }}
+                onChange={(e) => setNewTimeSlot(e.target.value)}
                 placeholder="Select time"
                 className="flex-1"
               />
@@ -309,10 +235,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             <Textarea
               id="notes"
               value={notes}
-              onChange={(e) => {
-                console.log('Notes changed:', e.target.value);
-                setNotes(e.target.value);
-              }}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="Additional notes (e.g., take with food, before meals)"
               rows={3}
             />
@@ -329,15 +252,8 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             </Button>
             <Button
               type="submit"
-              disabled={!submitButtonEnabled}
+              disabled={!isFormValid()}
               className="flex-1 bg-pill-navy hover:bg-pill-navy/90 order-1 sm:order-2"
-              onClick={(e) => {
-                console.log('🔘 Submit button clicked!', {
-                  submitButtonEnabled,
-                  isSubmitting,
-                  formData: { name, frequency, timeSlots }
-                });
-              }}
             >
               {isSubmitting ? (editMedicine ? 'Updating...' : 'Adding...') : (editMedicine ? 'Update Medicine' : 'Add Medicine')}
             </Button>

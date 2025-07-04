@@ -69,12 +69,19 @@ export const useMedicines = () => {
     }
 
     try {
-      console.log('Adding medicine for user:', user.id);
-      console.log('Medicine data:', medicine);
+      console.log('=== ADD MEDICINE START ===');
+      console.log('User ID:', user.id);
+      console.log('Medicine input:', medicine);
       
+      // Create the medicine data with explicit user_id
       const medicineData = {
-        ...medicine,
-        user_id: user.id, // Explicitly set the user_id
+        name: medicine.name,
+        dosage: medicine.dosage || null,
+        frequency: medicine.frequency,
+        time_slots: medicine.time_slots,
+        notes: medicine.notes || null,
+        is_active: medicine.is_active,
+        user_id: user.id
       };
       
       console.log('Final medicine data to insert:', medicineData);
@@ -86,22 +93,37 @@ export const useMedicines = () => {
         .single();
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase insert error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          hint: error.hint,
+          details: error.details
+        });
         throw error;
       }
       
       console.log('Successfully added medicine:', data);
+      
+      // Update local state
       setMedicines(prev => [data, ...prev]);
+      
       toast({
         title: "Success",
         description: "Medicine added successfully",
       });
+      
+      console.log('=== ADD MEDICINE SUCCESS ===');
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      console.error('=== ADD MEDICINE ERROR ===');
       console.error('Error adding medicine:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error code:', error?.code);
+      
       toast({
         title: "Error",
-        description: `Failed to add medicine: ${error.message || 'Unknown error'}`,
+        description: `Failed to add medicine: ${error?.message || 'Unknown error'}`,
         variant: "destructive",
       });
       return false;

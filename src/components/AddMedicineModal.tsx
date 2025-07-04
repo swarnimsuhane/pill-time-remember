@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -36,8 +37,15 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
       setFrequency(editMedicine.frequency);
       setTimeSlots(editMedicine.time_slots);
       setNotes(editMedicine.notes || '');
+    } else {
+      // Reset form when not editing
+      setName('');
+      setDosage('');
+      setFrequency('');
+      setTimeSlots([]);
+      setNotes('');
     }
-  }, [editMedicine]);
+  }, [editMedicine, isOpen]);
 
   const frequencyOptions = [
     'Once daily',
@@ -54,9 +62,16 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   ];
 
   const addTimeSlot = () => {
+    console.log('Adding time slot:', newTimeSlot);
+    console.log('Current time slots:', timeSlots);
+    
     if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
-      setTimeSlots([...timeSlots, newTimeSlot]);
+      const updatedTimeSlots = [...timeSlots, newTimeSlot];
+      setTimeSlots(updatedTimeSlots);
       setNewTimeSlot('');
+      console.log('Updated time slots:', updatedTimeSlots);
+    } else {
+      console.log('Time slot not added - either empty or already exists');
     }
   };
 
@@ -67,55 +82,74 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Form submission started');
-    console.log('User:', user);
-    console.log('Form data:', { name, frequency, timeSlots });
+    console.log('=== FORM SUBMISSION START ===');
+    console.log('User:', user?.id);
+    console.log('Form data:', { 
+      name, 
+      dosage, 
+      frequency, 
+      timeSlots: timeSlots.length,
+      timeSlotsList: timeSlots,
+      notes 
+    });
     
     if (!user) {
       console.error('No user found during form submission');
       return;
     }
     
-    if (!name || !frequency || timeSlots.length === 0) {
-      console.error('Missing required fields:', { name, frequency, timeSlots });
+    if (!name.trim()) {
+      console.error('Medicine name is required');
+      return;
+    }
+    
+    if (!frequency) {
+      console.error('Frequency is required');
+      return;
+    }
+    
+    if (timeSlots.length === 0) {
+      console.error('At least one time slot is required');
       return;
     }
 
     setIsSubmitting(true);
-    let success;
     
     try {
+      const medicineData = {
+        name: name.trim(),
+        dosage: dosage.trim() || undefined,
+        frequency,
+        time_slots: timeSlots,
+        notes: notes.trim() || undefined,
+        is_active: true
+      };
+      
+      console.log('Submitting medicine data:', medicineData);
+      
+      let success;
       if (editMedicine) {
         console.log('Updating existing medicine:', editMedicine.id);
-        success = await updateMedicine(editMedicine.id, {
-          name,
-          dosage: dosage || undefined,
-          frequency,
-          time_slots: timeSlots,
-          notes: notes || undefined,
-        });
+        success = await updateMedicine(editMedicine.id, medicineData);
       } else {
         console.log('Adding new medicine');
-        success = await addMedicine({
-          name,
-          dosage: dosage || undefined,
-          frequency,
-          time_slots: timeSlots,
-          notes: notes || undefined,
-          is_active: true
-        });
+        success = await addMedicine(medicineData);
       }
 
-      console.log('Operation success:', success);
+      console.log('Operation result:', success);
       
       if (success) {
+        console.log('Medicine operation successful, closing modal');
         resetForm();
         onClose();
+      } else {
+        console.error('Medicine operation failed');
       }
     } catch (error) {
       console.error('Error in handleSubmit:', error);
     } finally {
       setIsSubmitting(false);
+      console.log('=== FORM SUBMISSION END ===');
     }
   };
 
@@ -125,13 +159,15 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
     setFrequency('');
     setTimeSlots([]);
     setNotes('');
+    setNewTimeSlot('');
   };
 
   const handleClose = () => {
     resetForm();
-    setNewTimeSlot('');
     onClose();
   };
+
+  const canSubmit = name.trim() && frequency && timeSlots.length > 0 && user && !isSubmitting;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -246,7 +282,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             </Button>
             <Button
               type="submit"
-              disabled={!name || !frequency || timeSlots.length === 0 || isSubmitting || !user}
+              disabled={!canSubmit}
               className="flex-1 bg-pill-navy hover:bg-pill-navy/90 order-1 sm:order-2"
             >
               {isSubmitting ? (editMedicine ? 'Updating...' : 'Adding...') : (editMedicine ? 'Update Medicine' : 'Add Medicine')}

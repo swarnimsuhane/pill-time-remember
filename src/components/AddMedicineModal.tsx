@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -176,6 +175,12 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
           <DialogTitle className="text-2xl font-semibold text-pill-navy">
             {editMedicine ? 'Edit Medicine Schedule' : 'Add Medicine Schedule'}
           </DialogTitle>
+          <DialogDescription>
+            {editMedicine 
+              ? 'Update your medicine schedule with the correct timing and dosage information.' 
+              : 'Create a new medicine schedule with timing and dosage information to help you stay on track with your medication.'
+            }
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">

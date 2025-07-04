@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,11 +59,14 @@ export const useMedicines = () => {
   };
 
   const addMedicine = async (medicine: Omit<Medicine, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    console.log('🚀 ADD MEDICINE FUNCTION CALLED');
+    
     if (!user) {
-      console.error('No user found, cannot add medicine');
+      console.error('❌ No user found, cannot add medicine');
+      console.error('User object:', user);
       toast({
-        title: "Error",
-        description: "You must be logged in to add medicine",
+        title: "Authentication Error",
+        description: "You must be logged in to add medicine. Please sign in and try again.",
         variant: "destructive",
       });
       return false;
@@ -70,21 +74,43 @@ export const useMedicines = () => {
 
     try {
       console.log('=== ADD MEDICINE START ===');
-      console.log('User ID:', user.id);
-      console.log('Medicine input:', medicine);
+      console.log('👤 User ID:', user.id);
+      console.log('👤 User Email:', user.email);
+      console.log('📋 Medicine input:', medicine);
+      
+      // Validate input data
+      if (!medicine.name || !medicine.frequency || !medicine.time_slots || medicine.time_slots.length === 0) {
+        console.error('❌ Invalid medicine data:', {
+          hasName: !!medicine.name,
+          hasFrequency: !!medicine.frequency,
+          hasTimeSlots: !!medicine.time_slots,
+          timeSlotsLength: medicine.time_slots?.length || 0
+        });
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return false;
+      }
       
       // Create the medicine data with explicit user_id
       const medicineData = {
-        name: medicine.name,
-        dosage: medicine.dosage || null,
+        name: medicine.name.trim(),
+        dosage: medicine.dosage?.trim() || null,
         frequency: medicine.frequency,
         time_slots: medicine.time_slots,
-        notes: medicine.notes || null,
+        notes: medicine.notes?.trim() || null,
         is_active: medicine.is_active,
-        user_id: user.id
+        user_id: user.id // Explicitly setting user_id
       };
       
-      console.log('Final medicine data to insert:', medicineData);
+      console.log('📤 Final medicine data to insert:', medicineData);
+      console.log('🔑 User ID being inserted:', medicineData.user_id);
+      
+      // Test user authentication
+      const { data: authTest, error: authError } = await supabase.auth.getUser();
+      console.log('🔐 Auth test result:', { user: authTest?.user?.id, error: authError });
       
       const { data, error } = await supabase
         .from('medicines')
@@ -93,37 +119,57 @@ export const useMedicines = () => {
         .single();
 
       if (error) {
-        console.error('Supabase insert error:', error);
+        console.error('💥 Supabase insert error:', error);
         console.error('Error details:', {
           message: error.message,
           code: error.code,
           hint: error.hint,
           details: error.details
         });
+        
+        // Provide more specific error messages
+        let errorMessage = `Failed to add medicine: ${error.message}`;
+        if (error.code === '42501') {
+          errorMessage = "Permission denied. Please make sure you're logged in properly.";
+        } else if (error.code === '23505') {
+          errorMessage = "This medicine already exists in your schedule.";
+        }
+        
+        toast({
+          title: "Database Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
         throw error;
       }
       
-      console.log('Successfully added medicine:', data);
+      console.log('✅ Successfully added medicine:', data);
       
       // Update local state
-      setMedicines(prev => [data, ...prev]);
+      setMedicines(prev => {
+        console.log('📝 Updating local medicines state');
+        const newMedicines = [data, ...prev];
+        console.log('📝 New medicines array length:', newMedicines.length);
+        return newMedicines;
+      });
       
       toast({
         title: "Success",
-        description: "Medicine added successfully",
+        description: `${medicine.name} has been added to your medicine schedule`,
       });
       
       console.log('=== ADD MEDICINE SUCCESS ===');
       return true;
     } catch (error: any) {
       console.error('=== ADD MEDICINE ERROR ===');
-      console.error('Error adding medicine:', error);
+      console.error('💥 Error adding medicine:', error);
       console.error('Error message:', error?.message);
       console.error('Error code:', error?.code);
+      console.error('Error stack:', error?.stack);
       
       toast({
         title: "Error",
-        description: `Failed to add medicine: ${error?.message || 'Unknown error'}`,
+        description: `Failed to add medicine: ${error?.message || 'Unknown error occurred'}`,
         variant: "destructive",
       });
       return false;
@@ -131,6 +177,10 @@ export const useMedicines = () => {
   };
 
   const updateMedicine = async (id: string, updates: Partial<Medicine>) => {
+    console.log('📝 UPDATE MEDICINE FUNCTION CALLED');
+    console.log('Medicine ID:', id);
+    console.log('Updates:', updates);
+    
     try {
       const { data, error } = await supabase
         .from('medicines')
@@ -139,8 +189,12 @@ export const useMedicines = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('💥 Update error:', error);
+        throw error;
+      }
       
+      console.log('✅ Successfully updated medicine:', data);
       setMedicines(prev => prev.map(med => med.id === id ? data : med));
       toast({
         title: "Success",
@@ -148,7 +202,7 @@ export const useMedicines = () => {
       });
       return true;
     } catch (error) {
-      console.error('Error updating medicine:', error);
+      console.error('💥 Error updating medicine:', error);
       toast({
         title: "Error",
         description: "Failed to update medicine",
@@ -159,14 +213,21 @@ export const useMedicines = () => {
   };
 
   const deleteMedicine = async (id: string) => {
+    console.log('🗑️ DELETE MEDICINE FUNCTION CALLED');
+    console.log('Medicine ID:', id);
+    
     try {
       const { error } = await supabase
         .from('medicines')
         .update({ is_active: false })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('💥 Delete error:', error);
+        throw error;
+      }
       
+      console.log('✅ Successfully deleted medicine');
       setMedicines(prev => prev.filter(med => med.id !== id));
       toast({
         title: "Success",
@@ -174,7 +235,7 @@ export const useMedicines = () => {
       });
       return true;
     } catch (error) {
-      console.error('Error deleting medicine:', error);
+      console.error('💥 Error deleting medicine:', error);
       toast({
         title: "Error",
         description: "Failed to remove medicine",
@@ -185,11 +246,16 @@ export const useMedicines = () => {
   };
 
   useEffect(() => {
+    console.log('🔄 useMedicines effect triggered. User:', user?.id);
     fetchMedicines();
 
-    if (!user) return;
+    if (!user) {
+      console.log('👤 No user, skipping realtime setup');
+      return;
+    }
 
     // Set up real-time subscription
+    console.log('📡 Setting up realtime subscription for user:', user.id);
     const channel = supabase
       .channel('medicines-changes')
       .on(
@@ -201,13 +267,14 @@ export const useMedicines = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Real-time medicines change:', payload);
+          console.log('📡 Real-time medicines change:', payload);
           fetchMedicines(); // Refetch data when changes occur
         }
       )
       .subscribe();
 
     return () => {
+      console.log('📡 Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [user]);

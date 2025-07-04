@@ -24,6 +24,7 @@ export const useMedicines = () => {
 
   const fetchMedicines = async () => {
     if (!user) {
+      console.log('No user found, skipping medicine fetch');
       setLoading(false);
       return;
     }
@@ -57,17 +58,39 @@ export const useMedicines = () => {
   };
 
   const addMedicine = async (medicine: Omit<Medicine, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) return false;
+    if (!user) {
+      console.error('No user found, cannot add medicine');
+      toast({
+        title: "Error",
+        description: "You must be logged in to add medicine",
+        variant: "destructive",
+      });
+      return false;
+    }
 
     try {
+      console.log('Adding medicine for user:', user.id);
+      console.log('Medicine data:', medicine);
+      
+      const medicineData = {
+        ...medicine,
+        user_id: user.id, // Explicitly set the user_id
+      };
+      
+      console.log('Final medicine data to insert:', medicineData);
+      
       const { data, error } = await supabase
         .from('medicines')
-        .insert([{ ...medicine, user_id: user.id }])
+        .insert([medicineData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
+      console.log('Successfully added medicine:', data);
       setMedicines(prev => [data, ...prev]);
       toast({
         title: "Success",
@@ -78,7 +101,7 @@ export const useMedicines = () => {
       console.error('Error adding medicine:', error);
       toast({
         title: "Error",
-        description: "Failed to add medicine",
+        description: `Failed to add medicine: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
       return false;

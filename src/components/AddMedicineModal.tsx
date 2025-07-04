@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { X, Plus } from 'lucide-react';
 import { useMedicines, Medicine } from '@/hooks/useMedicines';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AddMedicineModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { addMedicine, updateMedicine } = useMedicines();
+  const { user } = useAuth();
 
   // Populate form when editing
   React.useEffect(() => {
@@ -64,48 +66,70 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !frequency || timeSlots.length === 0) return;
+    
+    console.log('Form submission started');
+    console.log('User:', user);
+    console.log('Form data:', { name, frequency, timeSlots });
+    
+    if (!user) {
+      console.error('No user found during form submission');
+      return;
+    }
+    
+    if (!name || !frequency || timeSlots.length === 0) {
+      console.error('Missing required fields:', { name, frequency, timeSlots });
+      return;
+    }
 
     setIsSubmitting(true);
     let success;
     
-    if (editMedicine) {
-      success = await updateMedicine(editMedicine.id, {
-        name,
-        dosage: dosage || undefined,
-        frequency,
-        time_slots: timeSlots,
-        notes: notes || undefined,
-      });
-    } else {
-      success = await addMedicine({
-        name,
-        dosage: dosage || undefined,
-        frequency,
-        time_slots: timeSlots,
-        notes: notes || undefined,
-        is_active: true
-      });
-    }
+    try {
+      if (editMedicine) {
+        console.log('Updating existing medicine:', editMedicine.id);
+        success = await updateMedicine(editMedicine.id, {
+          name,
+          dosage: dosage || undefined,
+          frequency,
+          time_slots: timeSlots,
+          notes: notes || undefined,
+        });
+      } else {
+        console.log('Adding new medicine');
+        success = await addMedicine({
+          name,
+          dosage: dosage || undefined,
+          frequency,
+          time_slots: timeSlots,
+          notes: notes || undefined,
+          is_active: true
+        });
+      }
 
-    if (success) {
-      setName('');
-      setDosage('');
-      setFrequency('');
-      setTimeSlots([]);
-      setNotes('');
-      onClose();
+      console.log('Operation success:', success);
+      
+      if (success) {
+        resetForm();
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
-  const handleClose = () => {
+  const resetForm = () => {
     setName('');
     setDosage('');
     setFrequency('');
     setTimeSlots([]);
-    setNewTimeSlot('');
     setNotes('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    setNewTimeSlot('');
     onClose();
   };
 
@@ -222,7 +246,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             </Button>
             <Button
               type="submit"
-              disabled={!name || !frequency || timeSlots.length === 0 || isSubmitting}
+              disabled={!name || !frequency || timeSlots.length === 0 || isSubmitting || !user}
               className="flex-1 bg-pill-navy hover:bg-pill-navy/90 order-1 sm:order-2"
             >
               {isSubmitting ? (editMedicine ? 'Updating...' : 'Adding...') : (editMedicine ? 'Update Medicine' : 'Add Medicine')}

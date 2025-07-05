@@ -25,10 +25,13 @@ export const useMedicines = () => {
 
   const fetchMedicines = async () => {
     if (!user) {
+      console.log('No user found, skipping medicine fetch');
       setLoading(false);
       return;
     }
 
+    console.log('Fetching medicines for user:', user.id);
+    
     try {
       const { data, error } = await supabase
         .from('medicines')
@@ -37,11 +40,15 @@ export const useMedicines = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
+      console.log('Medicine fetch result:', { data, error });
+
       if (error) {
+        console.error('Medicine fetch error:', error);
         throw error;
       }
       
       setMedicines(data || []);
+      console.log('Medicines set to state:', data?.length || 0, 'items');
     } catch (error) {
       console.error('Error fetching medicines:', error);
       toast({
@@ -56,17 +63,26 @@ export const useMedicines = () => {
 
   const addMedicine = async (medicine: Omit<Medicine, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) {
+      console.error('No user found when adding medicine');
       toast({
         title: "Authentication Error",
-        description: "You must be logged in to add medicine. Please sign in and try again.",
+        description: "You must be logged in to add medicine",
         variant: "destructive",
       });
       return false;
     }
 
+    console.log('Adding medicine:', medicine);
+    console.log('Current user:', user.id);
+
     try {
-      // Validate input data
-      if (!medicine.name || !medicine.frequency || !medicine.time_slots || medicine.time_slots.length === 0) {
+      // Validate required fields
+      if (!medicine.name?.trim() || !medicine.frequency || !medicine.time_slots?.length) {
+        console.error('Validation failed:', { 
+          name: medicine.name, 
+          frequency: medicine.frequency, 
+          timeSlots: medicine.time_slots 
+        });
         toast({
           title: "Validation Error",
           description: "Please fill in all required fields",
@@ -75,16 +91,17 @@ export const useMedicines = () => {
         return false;
       }
       
-      // Create the medicine data with explicit user_id
       const medicineData = {
         name: medicine.name.trim(),
         dosage: medicine.dosage?.trim() || null,
         frequency: medicine.frequency,
         time_slots: medicine.time_slots,
         notes: medicine.notes?.trim() || null,
-        is_active: medicine.is_active,
+        is_active: medicine.is_active !== false, // Default to true
         user_id: user.id
       };
+      
+      console.log('Inserting medicine data:', medicineData);
       
       const { data, error } = await supabase
         .from('medicines')
@@ -92,37 +109,39 @@ export const useMedicines = () => {
         .select()
         .single();
 
+      console.log('Insert result:', { data, error });
+
       if (error) {
-        let errorMessage = `Failed to add medicine: ${error.message}`;
-        if (error.code === '42501') {
-          errorMessage = "Permission denied. Please make sure you're logged in properly.";
-        } else if (error.code === '23505') {
-          errorMessage = "This medicine already exists in your schedule.";
-        }
-        
+        console.error('Database insert error:', error);
         toast({
           title: "Database Error",
-          description: errorMessage,
+          description: `Failed to add medicine: ${error.message}`,
           variant: "destructive",
         });
-        throw error;
+        return false;
       }
       
-      // Update local state
-      setMedicines(prev => [data, ...prev]);
+      if (data) {
+        setMedicines(prev => {
+          const updated = [data, ...prev];
+          console.log('Updated medicines state with new item:', updated.length, 'total');
+          return updated;
+        });
+        
+        toast({
+          title: "Success",
+          description: `${medicine.name} has been added successfully`,
+        });
+        
+        return true;
+      }
       
-      toast({
-        title: "Success",
-        description: `${medicine.name} has been added to your medicine schedule`,
-      });
-      
-      return true;
+      return false;
     } catch (error: any) {
-      console.error('Error adding medicine:', error);
-      
+      console.error('Unexpected error adding medicine:', error);
       toast({
         title: "Error",
-        description: `Failed to add medicine: ${error?.message || 'Unknown error occurred'}`,
+        description: `Failed to add medicine: ${error?.message || 'Unknown error'}`,
         variant: "destructive",
       });
       return false;
@@ -130,24 +149,39 @@ export const useMedicines = () => {
   };
 
   const updateMedicine = async (id: string, updates: Partial<Medicine>) => {
+    if (!user) {
+      console.error('No user found when updating medicine');
+      return false;
+    }
+
+    console.log('Updating medicine:', id, updates);
+
     try {
       const { data, error } = await supabase
         .from('medicines')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single();
 
+      console.log('Update result:', { data, error });
+
       if (error) {
+        console.error('Update error:', error);
         throw error;
       }
       
-      setMedicines(prev => prev.map(med => med.id === id ? data : med));
-      toast({
-        title: "Success",
-        description: "Medicine updated successfully",
-      });
-      return true;
+      if (data) {
+        setMedicines(prev => prev.map(med => med.id === id ? data : med));
+        toast({
+          title: "Success",
+          description: "Medicine updated successfully",
+        });
+        return true;
+      }
+      
+      return false;
     } catch (error) {
       console.error('Error updating medicine:', error);
       toast({
@@ -160,13 +194,24 @@ export const useMedicines = () => {
   };
 
   const deleteMedicine = async (id: string) => {
+    if (!user) {
+      console.error('No user found when deleting medicine');
+      return false;
+    }
+
+    console.log('Deleting medicine:', id);
+
     try {
       const { error } = await supabase
         .from('medicines')
         .update({ is_active: false })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      console.log('Delete result error:', error);
 
       if (error) {
+        console.error('Delete error:', error);
         throw error;
       }
       
@@ -188,6 +233,7 @@ export const useMedicines = () => {
   };
 
   useEffect(() => {
+    console.log('Medicine hook effect triggered, user:', user?.id);
     fetchMedicines();
 
     if (!user) {
@@ -206,7 +252,8 @@ export const useMedicines = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          fetchMedicines(); // Refetch data when changes occur
+          console.log('Real-time medicine change:', payload);
+          fetchMedicines();
         }
       )
       .subscribe();

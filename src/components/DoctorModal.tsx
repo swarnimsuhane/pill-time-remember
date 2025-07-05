@@ -22,25 +22,44 @@ const DoctorModal = ({ isOpen, onClose }: DoctorModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { doctors, addDoctor, deleteDoctor } = useDoctors();
 
+  console.log('DoctorModal render - isOpen:', isOpen, 'doctors:', doctors?.length || 0);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.speciality.trim()) return;
+    
+    console.log('Doctor form submission:', formData);
+    
+    if (!formData.name.trim() || !formData.speciality.trim()) {
+      console.error('Doctor form validation failed');
+      return;
+    }
 
     setIsSubmitting(true);
-    await addDoctor({
-      name: formData.name,
-      speciality: formData.speciality,
-      contact: formData.contact,
-      appointment_date: formData.appointment_date || null
-    });
     
-    setFormData({ name: '', speciality: '', contact: '', appointment_date: '' });
-    setIsSubmitting(false);
+    try {
+      const success = await addDoctor({
+        name: formData.name,
+        speciality: formData.speciality,
+        contact: formData.contact,
+        appointment_date: formData.appointment_date || null
+      });
+      
+      console.log('Doctor add result:', success);
+      
+      if (success) {
+        setFormData({ name: '', speciality: '', contact: '', appointment_date: '' });
+      }
+    } catch (error) {
+      console.error('Error in doctor form submission:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
+    console.log('Deleting doctor:', id);
     if (confirm('Are you sure you want to delete this doctor?')) {
       await deleteDoctor(id);
     }
@@ -126,7 +145,7 @@ const DoctorModal = ({ isOpen, onClose }: DoctorModalProps) => {
 
           {/* Doctors List */}
           <div>
-            <h4 className="font-semibold text-pill-navy mb-4">Your Doctors</h4>
+            <h4 className="font-semibold text-pill-navy mb-4">Your Doctors ({doctors.length})</h4>
             
             {doctors.length > 0 ? (
               <div className="space-y-3">

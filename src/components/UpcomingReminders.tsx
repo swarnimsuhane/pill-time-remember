@@ -5,7 +5,9 @@ import { Clock, Bell, Heart, Droplets, Activity, Pill } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 
 const UpcomingReminders = () => {
-  const { medicines } = useMedicines();
+  const { medicines, loading } = useMedicines();
+
+  console.log('UpcomingReminders render - medicines:', medicines?.length || 0, 'loading:', loading);
 
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');
@@ -21,6 +23,11 @@ const UpcomingReminders = () => {
   };
 
   const getUpcomingMedicines = () => {
+    if (loading || !medicines?.length) {
+      console.log('No medicines available or still loading');
+      return [];
+    }
+
     const currentTimeMinutes = getCurrentTime();
     const upcomingMedicines: Array<{ name: string; time: string; color: string; icon: any; medicine: string }> = [];
 
@@ -42,19 +49,20 @@ const UpcomingReminders = () => {
       });
     });
 
-    // Add default health reminders if no medicines
-    const healthReminders = [
-      { name: 'Drink Water', time: '2:00 PM', color: 'bg-blue-100', icon: Droplets, medicine: 'Stay hydrated' },
-      { name: 'Evening Exercise', time: '6:00 PM', color: 'bg-green-100', icon: Activity, medicine: 'Light activity' },
-      { name: 'Health Check-in', time: '9:00 PM', color: 'bg-purple-100', icon: Heart, medicine: 'Review symptoms' },
-    ];
-
-    return upcomingMedicines.length > 0 
-      ? upcomingMedicines.slice(0, 3)
-      : healthReminders;
+    console.log('Upcoming medicines calculated:', upcomingMedicines.length);
+    return upcomingMedicines.slice(0, 3);
   };
 
-  const reminders = getUpcomingMedicines();
+  const upcomingMedicines = getUpcomingMedicines();
+
+  // Default health reminders when no medicines are upcoming
+  const defaultReminders = [
+    { name: 'Drink Water', time: '2:00 PM', color: 'bg-blue-100', icon: Droplets, medicine: 'Stay hydrated' },
+    { name: 'Evening Exercise', time: '6:00 PM', color: 'bg-green-100', icon: Activity, medicine: 'Light activity' },
+    { name: 'Health Check-in', time: '9:00 PM', color: 'bg-purple-100', icon: Heart, medicine: 'Review symptoms' },
+  ];
+
+  const reminders = upcomingMedicines.length > 0 ? upcomingMedicines : defaultReminders;
 
   return (
     <Card className="p-6 bg-white/90 backdrop-blur-sm pill-shadow">
@@ -65,31 +73,40 @@ const UpcomingReminders = () => {
         </h3>
       </div>
       
-      <div className="space-y-4">
-        {reminders.map((reminder, index) => {
-          const IconComponent = reminder.icon;
-          return (
-            <div 
-              key={index}
-              className="flex items-center gap-3 p-3 rounded-lg bg-pill-light/50 hover:bg-pill-light transition-colors duration-200"
-            >
-              <div className={`w-10 h-10 ${reminder.color} rounded-full flex items-center justify-center`}>
-                <IconComponent className="w-5 h-5 text-pill-navy" />
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="w-6 h-6 border-2 border-pill-navy border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reminders.map((reminder, index) => {
+            const IconComponent = reminder.icon;
+            return (
+              <div 
+                key={index}
+                className="flex items-center gap-3 p-3 rounded-lg bg-pill-light/50 hover:bg-pill-light transition-colors duration-200"
+              >
+                <div className={`w-10 h-10 ${reminder.color} rounded-full flex items-center justify-center`}>
+                  <IconComponent className="w-5 h-5 text-pill-navy" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-pill-navy">{reminder.name}</p>
+                  <p className="text-sm text-pill-navy/70">{reminder.time}</p>
+                  <p className="text-xs text-pill-navy/60">{reminder.medicine}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-pill-navy">{reminder.name}</p>
-                <p className="text-sm text-pill-navy/70">{reminder.time}</p>
-                <p className="text-xs text-pill-navy/60">{reminder.medicine}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-6 p-4 bg-gradient-to-r from-pill-teal/20 to-pill-gold/20 rounded-lg">
         <p className="text-sm text-pill-navy font-medium mb-2">💡 Health Tip</p>
         <p className="text-sm text-pill-navy/80">
-          Stay hydrated throughout the day and track your symptoms to maintain optimal health.
+          {upcomingMedicines.length > 0 
+            ? `You have ${upcomingMedicines.length} medicine reminder${upcomingMedicines.length > 1 ? 's' : ''} coming up. Stay consistent with your medication schedule.`
+            : 'Stay hydrated throughout the day and track your symptoms to maintain optimal health.'
+          }
         </p>
       </div>
     </Card>

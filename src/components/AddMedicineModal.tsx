@@ -31,6 +31,8 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
 
   // Populate form when editing
   React.useEffect(() => {
+    console.log('AddMedicineModal effect - editMedicine:', editMedicine, 'isOpen:', isOpen);
+    
     if (editMedicine) {
       setName(editMedicine.name);
       setDosage(editMedicine.dosage || '');
@@ -39,11 +41,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
       setNotes(editMedicine.notes || '');
     } else {
       // Reset form when not editing
-      setName('');
-      setDosage('');
-      setFrequency('');
-      setTimeSlots([]);
-      setNotes('');
+      resetForm();
     }
   }, [editMedicine, isOpen]);
 
@@ -62,26 +60,44 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   ];
 
   const addTimeSlot = () => {
+    console.log('Adding time slot:', newTimeSlot);
     if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
       setTimeSlots(prev => [...prev, newTimeSlot]);
       setNewTimeSlot('');
+      console.log('Time slots updated:', [...timeSlots, newTimeSlot]);
     }
   };
 
   const removeTimeSlot = (timeSlot: string) => {
+    console.log('Removing time slot:', timeSlot);
     setTimeSlots(prev => prev.filter(slot => slot !== timeSlot));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission started');
+    console.log('Form data:', { name, dosage, frequency, timeSlots, notes });
+    console.log('Current user:', user?.id);
+    
     if (!user) {
       console.error('No user found during form submission');
       return;
     }
     
-    if (!name.trim() || !frequency || timeSlots.length === 0) {
-      console.error('Validation failed: missing required fields');
+    // Validation
+    if (!name.trim()) {
+      console.error('Validation failed: missing name');
+      return;
+    }
+    
+    if (!frequency) {
+      console.error('Validation failed: missing frequency');
+      return;
+    }
+    
+    if (timeSlots.length === 0) {
+      console.error('Validation failed: no time slots');
       return;
     }
 
@@ -97,16 +113,25 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
         is_active: true
       };
       
+      console.log('Prepared medicine data:', medicineData);
+      
       let success;
       if (editMedicine) {
+        console.log('Updating existing medicine:', editMedicine.id);
         success = await updateMedicine(editMedicine.id, medicineData);
       } else {
+        console.log('Adding new medicine');
         success = await addMedicine(medicineData);
       }
 
+      console.log('Operation result:', success);
+
       if (success) {
+        console.log('Medicine operation successful, closing modal');
         resetForm();
         onClose();
+      } else {
+        console.error('Medicine operation failed');
       }
     } catch (error) {
       console.error('Error in handleSubmit:', error);
@@ -116,6 +141,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   };
 
   const resetForm = () => {
+    console.log('Resetting form');
     setName('');
     setDosage('');
     setFrequency('');
@@ -125,12 +151,21 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
   };
 
   const handleClose = () => {
+    console.log('Closing modal and resetting form');
     resetForm();
     onClose();
   };
 
   const isFormValid = () => {
-    return name.trim().length > 0 && frequency.length > 0 && timeSlots.length > 0 && !!user && !isSubmitting;
+    const valid = name.trim().length > 0 && frequency.length > 0 && timeSlots.length > 0 && !!user;
+    console.log('Form validation:', { 
+      hasName: name.trim().length > 0, 
+      hasFrequency: frequency.length > 0, 
+      hasTimeSlots: timeSlots.length > 0, 
+      hasUser: !!user,
+      isValid: valid 
+    });
+    return valid;
   };
 
   return (
@@ -252,7 +287,7 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
             </Button>
             <Button
               type="submit"
-              disabled={!isFormValid()}
+              disabled={!isFormValid() || isSubmitting}
               className="flex-1 bg-pill-navy hover:bg-pill-navy/90 order-1 sm:order-2"
             >
               {isSubmitting ? (editMedicine ? 'Updating...' : 'Adding...') : (editMedicine ? 'Update Medicine' : 'Add Medicine')}

@@ -62,8 +62,11 @@ export const useMedicines = () => {
   };
 
   const addMedicine = async (medicine: Omit<Medicine, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    console.log('Starting addMedicine function');
+    console.log('User from auth context:', user);
+    
     if (!user) {
-      console.error('No user found when adding medicine');
+      console.error('No authenticated user found');
       toast({
         title: "Authentication Error",
         description: "You must be logged in to add medicine",
@@ -73,19 +76,34 @@ export const useMedicines = () => {
     }
 
     console.log('Adding medicine:', medicine);
-    console.log('Current user:', user.id);
 
     try {
       // Validate required fields
-      if (!medicine.name?.trim() || !medicine.frequency || !medicine.time_slots?.length) {
-        console.error('Validation failed:', { 
-          name: medicine.name, 
-          frequency: medicine.frequency, 
-          timeSlots: medicine.time_slots 
-        });
+      if (!medicine.name?.trim()) {
+        console.error('Medicine name is required');
         toast({
           title: "Validation Error",
-          description: "Please fill in all required fields",
+          description: "Medicine name is required",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (!medicine.frequency) {
+        console.error('Frequency is required');
+        toast({
+          title: "Validation Error",
+          description: "Frequency is required",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (!medicine.time_slots || medicine.time_slots.length === 0) {
+        console.error('At least one time slot is required');
+        toast({
+          title: "Validation Error",
+          description: "At least one time slot is required",
           variant: "destructive",
         });
         return false;
@@ -97,11 +115,11 @@ export const useMedicines = () => {
         frequency: medicine.frequency,
         time_slots: medicine.time_slots,
         notes: medicine.notes?.trim() || null,
-        is_active: medicine.is_active !== false, // Default to true
+        is_active: true,
         user_id: user.id
       };
       
-      console.log('Inserting medicine data:', medicineData);
+      console.log('Attempting to insert medicine data:', medicineData);
       
       const { data, error } = await supabase
         .from('medicines')

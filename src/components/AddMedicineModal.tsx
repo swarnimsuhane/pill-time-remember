@@ -185,30 +185,34 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name">Medicine Name *</Label>
+            <Label htmlFor="medicine-name">Medicine Name *</Label>
             <Input
-              id="name"
+              id="medicine-name"
+              name="medicine-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter medicine name"
               required
+              autoComplete="off"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dosage">Dosage</Label>
+            <Label htmlFor="medicine-dosage">Dosage</Label>
             <Input
-              id="dosage"
+              id="medicine-dosage"
+              name="medicine-dosage"
               value={dosage}
               onChange={(e) => setDosage(e.target.value)}
               placeholder="e.g., 1 tablet, 5ml, 500mg"
+              autoComplete="off"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="frequency">Frequency *</Label>
-            <Select value={frequency} onValueChange={setFrequency} required>
-              <SelectTrigger>
+            <Label htmlFor="medicine-frequency">Frequency *</Label>
+            <Select value={frequency} onValueChange={setFrequency} required name="medicine-frequency">
+              <SelectTrigger id="medicine-frequency">
                 <SelectValue placeholder="Select frequency" />
               </SelectTrigger>
               <SelectContent>
@@ -222,14 +226,17 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
           </div>
 
           <div className="space-y-2">
-            <Label>Time Slots *</Label>
+            <Label htmlFor="medicine-time-slot">Time Slots *</Label>
             <div className="flex flex-col sm:flex-row gap-2">
               <Input
+                id="medicine-time-slot"
+                name="medicine-time-slot"
                 type="time"
                 value={newTimeSlot}
                 onChange={(e) => setNewTimeSlot(e.target.value)}
                 placeholder="Select time"
                 className="flex-1"
+                autoComplete="off"
               />
               <Button
                 type="button"
@@ -266,13 +273,15 @@ const AddMedicineModal = ({ isOpen, onClose, editMedicine }: AddMedicineModalPro
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="medicine-notes">Notes</Label>
             <Textarea
-              id="notes"
+              id="medicine-notes"
+              name="medicine-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Additional notes (e.g., take with food, before meals)"
               rows={3}
+              autoComplete="off"
             />
           </div>
 
